@@ -84,7 +84,7 @@ begin
 		raddrB  => inst(20 downto 16),
 		wen     => regWrite,
 		waddr   => regWriteAddr,
-		din	=> ,
+		din	=> mux3Output,
 		doutA   => aluin1,
 		doutB   => mux2Input1,
 		extaddr => regaddr,
@@ -97,10 +97,10 @@ begin
 		rst	=> rst,
 		instaddr=> PC,
 		instout	=> 
-		wen	=> MemWrite,
+		wen	=> memWrite,
 		addr	=> aluResult,
-		din	=> din,
-		dout	=> dout,
+		din	=> mux2Input1,
+		dout	=> mux3Input1
 		extwen	=> 
 		extaddr	=> 
 		extdin	=> 
@@ -134,14 +134,22 @@ begin
 		input1 => mux2Input1,
 		input2 => 
 		selector => aluSrc,
-		output1 => mux2Output,
-	)
+		output1 => mux2Output
+	);
+
+	mux3Mapping : mux PORT MAP
+	(
+		input1 => mux3Input1,
+		input2 => aluResult,
+		selector => memToReg,
+		output1 => mux3Output
+	);
 
 	ALUMapping : ALU PORT MAP
 	(
 		A	=> aluin1,
-		B	=> aluin2,
-		op	=> ALUControl,
+		B	=> mux2Output,
+		op	=> aluControl,
 		Result	=> aluResult,
 		ZERO	=> ZERO
 	);
@@ -153,26 +161,7 @@ begin
 		 else "0000000000000000" & inst(15 downto 0);	 
 
 ---------------------------------------- sign_extend ----------------------------------------
-	---- ALUControl -----
-		if ALUOp = "10" then
-			ALUControl <= "0110" when inst(31 downto 26)="100000" else 
-				"1110" when inst(31 downto 26)="100010" else
-				"0000" when inst(31 downto 26)="100100" else 
-				"0001" when inst(31 downto 26)="100101" else 
-				"0010" when inst(31 downto 26)="100110" else 
-				"0011" when inst(31 downto 26)="100111" else 
-				"1111" when inst(31 downto 26)="101010" else 
-				"1001"
-	---- ALUControl -----
 
-
----------------Register-------------------
-	raddrA <= inst(25 downto 21);
-	raddrB <= inst(20 downto 16);
-	waddr <= inst(20 downto 16) when RegDst="0" else
-		<= inst(15 downto 11);
-	din <= ;
-------------End Of Register---------------
 end arch_processor_core;
 
 
