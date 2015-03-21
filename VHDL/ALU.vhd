@@ -1,56 +1,65 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.std_logic_unsigned.all;
+use ieee.std_logic_arith.all;
 
-entitiy ALU is 
+entity ALU is
 	port (
-		A	:	in std_logic_vector;
-		B	:	in std_logic_vector;
-		carry_in:	in std_logic_vector;
-		less_in: in std_logic_vector;
-		op	:	in std_logic_vector;
-		less_out: out std_logic_vector;
-		carry_out:	out std_logic_vector;
-		result	:	out std_logic_vector
+		A	:	in std_logic_vector (31 downto 0);
+		B	:	in std_logic_vector (31 downto 0);
+		op	:	in std_logic_vector (3 downto 0);
+		less: out std_logic;
+		result	:	out std_logic_vector (31 downto 0)
 	);
 end ALU;
 
 architecture arch_ALU of ALU is 
-  signal temp: std_logic_vector;
 begin
-  process(A, B, carry_in, op)
+  process(A, B, op)
+    variable msb_a: std_logic;
+    variable msb_b: std_logic;
+    variable temp_a: integer;
+    variable temp_b: integer;
     begin
       case op is
         when "0000" =>
           result <= A + B;
-        when "0001" =>
-          result <= (unsigned)A + (unsigned)B;
+          msb_a := A(31) and B(31);
+          msb_b := A(30) and B(30);
+          less <= msb_a xor msb_b;
         when "0010" =>
           result <= A + (not B) + 1;
-        when "0011" =>
-          result <= (unsigned)A + (not (unsigned)B) + 1;
+          msb_a := A(31) and B(31);
+          msb_b := A(30) and B(30);
+          less <= msb_a xor msb_b;
         when "0100" =>
           result <= A and B;
+          less <= '0';
         when "0101" =>
           result <= A or B;
+          less <= '0';
         when "0110" =>
           result <= (A or B) and (not (A and B));
+          less <= '0';
         when "0111" =>
           result <= (not A) and (not B);
+          less <= '0';
         when "1000" =>
-          temp <= A + (not B) + 1;
-          if temp < 0 then
+          if A < B then
             result <= "11111111111111111111111111111111";
           else 
             result <= "00000000000000000000000000000000";
           end if;
+          less <= '0';
         when "1001" =>
-          temp <= (unsigned) A + (not (unsigned) B);
-          if temp < 0 then
+          if unsigned(A) < unsigned(B) then
             result <= "11111111111111111111111111111111";
           else 
             result <= "00000000000000000000000000000000";
           end if;
+          less <= '0';
+        when others =>
+          null;
       end case;
       
     end process;
