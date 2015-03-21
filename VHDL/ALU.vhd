@@ -4,19 +4,19 @@ use ieee.std_logic_unsigned.all;
 
 entitiy ALU is 
 	port (
-		A	:	in std_logic_vector;
-		B	:	in std_logic_vector;
-		carry_in:	in std_logic_vector;
-		less_in: in std_logic_vector;
-		op	:	in std_logic_vector;
-		less_out: out std_logic_vector;
-		carry_out:	out std_logic_vector;
-		result	:	out std_logic_vector
+		A	:	in std_logic_vector (31 downto 0);
+		B	:	in std_logic_vector (31 downto 0);
+		carry_in:	in std_logic;
+		less_in: in std_logic;
+		op	:	in std_logic_vector (3 downto 0);
+		less_out: out std_logic;
+		carry_out:	out std_logic;
+		result	:	out std_logic_vector (31 downto 0)
 	);
 end ALU;
 
 architecture arch_ALU of ALU is 
-  signal temp: std_logic_vector;
+  signal temp: std_logic_vector (31 downto 0);
 begin
   process(A, B, carry_in, op)
     begin
