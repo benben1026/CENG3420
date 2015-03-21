@@ -19,6 +19,21 @@ entity processor is
 end processor;
 		
 architecture arch_processor of processor is
+	component regtable
+		port (
+			clk	:	in std_logic;
+			rst	:	in std_logic;
+			raddrA	:	in std_logic_vector(4 downto 0);
+			raddrB	:	in std_logic_vector(4 downto 0);
+			wen	:	in std_logic;
+			waddr	:	in std_logic_vector(4 downto 0);
+			din	:	in std_logic_vector(31 downto 0);
+			doutA	:	out std_logic_vector(31 downto 0);
+			doutB	:	out std_logic_vector(31 downto 0);
+			extaddr	:	in std_logic_vector(4 downto 0);
+			extdout	:	out std_logic_vector(31 downto 0)
+		);
+	end component;
 
 	component memtable
 		port (

@@ -38,10 +38,9 @@ architecture arch_processor_core of processor_core is
 		);
 	end component;
 
-	component control
+	component decoder
 		port(
 			ins	:	in std_logic_vector(31 downto 0);
-		)
 -- Add signals here
 begin
 -- Processor Core Behaviour
