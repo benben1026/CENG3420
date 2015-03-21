@@ -38,11 +38,6 @@ architecture arch_processor_core of processor_core is
 		);
 	end component;
 
-	component control
-		port(
-			ins	:	in std_logic_vector(31 downto 0);
-			
-		)
 -- Add signals here
 	--Signal: Decode
 	signal RegDst: std_logic;
@@ -50,15 +45,52 @@ architecture arch_processor_core of processor_core is
 	signal Branch: std_logic;
 	signal MemRead: std_logic;
 	signal MemToReg: std_logic;
-	signal ALUOp: std_logic_vector(3 downto 0);
+	signal ALUControl: std_logic_vector(3 downto 0);
 	signal MemWrite: std_logic;
 	signal ALUSrc: std_logic_vector(1 downto 0);
 	signal RegWrite: std_logic;
 	signal RType: STD_LOGIC;
+
+	--Signal: Control Unit
+	SIGNAL PCSrc: STD_LOGIC_VECTOR(1 downto 0);
+	SIGNAL SignExtension: STD_LOGIC_VECTOR(31 downto 0);--aluloc
+		
+	--Signal: PC Control
+	constant Four: STD_LOGIC_VECTOR(31 downto 0) := "00000000000000000000000000000100";
+	constant BaseAddress: STD_LOGIC_VECTOR(31 downto 0) :="00000000000000000100000000000000"; --0x00400000
+	signal NewPc: STD_LOGIC_VECTOR(31 downto 0);
+	signal PCAdd_Sft_Out: STD_LOGIC_VECTOR(31 downto 0);--brloc
+	signal PCfirstMuxOut: STD_LOGIC_VECTOR(31 downto 0);--PCSrc2
+	signal PCclk: STD_LOGIC;
+	signal PC: STD_LOGIC_VECTOR(31 downto 0);
+  
+  
+ 	signal ZERO, Jal, BeforeZero: STD_LOGIC;
+	signal Tem1: STD_LOGIC_VECTOR(31 downto 0);	
+	signal Tem2: STD_LOGIC_VECTOR(32 downto 0);
+	signal aluBuffer: STD_LOGIC_VECTOR(7 downto 0);	
+	signal RegWriteAddr: STD_LOGIC_VECTOR(4 downto 0);
+	signal aluMult, aluResult ,aluin1, aluin2, aluo1, aluo2 : STD_LOGIC_VECTOR(31 downto 0);		
+	signal ALUConOut: std_logic_vector (3 downto 0);
 begin
 -- Processor Core Behaviour
+	regtableMapping : regtable PORT MAP
+	(
+		clk     => PCclk,
+		rst     => rst,
+		raddrA  => inst(25 downto 21),
+		raddrB  => inst(20 downto 16),
+		wen     => RegWrite,
+		waddr   => RegWriteAddr,
+		din	=> aluo2,
+		doutA   => aluin1,
+		doutB   => aluMult,
+		extaddr => regaddr,
+		extdout => regdout
+	);
+
+
 	--Decode
-	process()
 	begin
 		RegDst <= '1' when inst(31 downto 26)='000000' else '0';
 		Jump <= '1' when inst(31 downto 27)='00001' else '0';
@@ -90,7 +122,21 @@ begin
 				inst(31 downto 26)="000011" or   --JAL
 				inst(31 downto 29)="001" else    --Operation end with 'i'
 			'0';
-		
-		
-	end process;
+	
+---------------------------------------- sign_extend ----------------------------------------
+
+  SignExtension <= "1111111111111111" & inst(15 downto 0) when inst(15)='1'
+		 else "0000000000000000" & inst(15 downto 0);	 
+
+---------------------------------------- sign_extend ----------------------------------------
+	---- ALUControl -----
+		if ALUSrc = "10" then
+			ALUControl <= "0110" when inst(31 downto 26)="100000" else 
+				"1110" when inst(31 downto 26)="100010" else
+				"0000" when inst(31 downto 26)="100100" else 
+				"0001" when inst(31 downto 26)="100101" else 
+				"0010" when inst(31 downto 26)="100110" else 
+				"0011" when inst(31 downto 26)="100111" else 
+				"1111" when inst(31 downto 26)="101010" else 
+				"1001"
 end arch_processor_core;
