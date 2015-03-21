@@ -55,54 +55,38 @@ architecture arch_processor_core of processor_core is
 		);
 	end component;
 
+	component mux
+		port(
+			input1	:	in std_logic_vector(31 downto 0);
+			input2	:	in std_logic_vector(31 downto 0);
+			selector:	in std_logic;
+			output1	:	out std_logic_vector(31 downto 0)
+		);
+	end component;
+
 -- Add signals here
-	--Signal: Decode
-	signal RegDst: std_logic;
-	signal Jump: std_logic;
-	signal Branch: std_logic;
-	signal MemRead: std_logic;
-	signal MemToReg: std_logic;
-	signal ALUOp: std_logic_vector(1 downto 0);
-	signal MemWrite: std_logic;
-	signal ALUSrc: std_logic;
-	signal RegWrite: std_logic;
-
-	signal RType: STD_LOGIC;
-	signal ALUControl: std_logic_vector(3 downto 0);
-
-	--Signal: Control Unit
-	SIGNAL PCSrc: STD_LOGIC_VECTOR(1 downto 0);
-	SIGNAL SignExtension: STD_LOGIC_VECTOR(31 downto 0);--aluloc
-		
-	--Signal: PC Control
-	constant Four: STD_LOGIC_VECTOR(31 downto 0) := "00000000000000000000000000000100";
-	constant BaseAddress: STD_LOGIC_VECTOR(31 downto 0) :="00000000000000000100000000000000"; --0x00400000
-	signal NewPc: STD_LOGIC_VECTOR(31 downto 0);
-	signal PC_Ins: STD_LOGIC_VECTOR(31 downto 0);--brloc
-	signal PCfirstMuxOut: STD_LOGIC_VECTOR(31 downto 0);--PCSrc2
-	signal PCclk: STD_LOGIC;
-	signal PC: STD_LOGIC_VECTOR(31 downto 0);
-  
-  
- 	signal ZERO, Jal, BeforeZero: STD_LOGIC;
-	signal RegWriteAddr: STD_LOGIC_VECTOR(4 downto 0);
-	signal aluMult, aluResult ,aluin1, aluin2, aluo1, aluo2 : STD_LOGIC_VECTOR(31 downto 0);		
-	signal ALUConOut: std_logic_vector (3 downto 0);
-
-	signal din, dout: STD_LOGIC_VECTOR(31 downto 0);
+	signal regDst	: 	std_logic;
+	signal jump		: 	std_logic;
+	signal branch	:	std_logic;
+	signal memRead	:	std_logic;
+	signal memToReg :	std_logic;
+	signal aluOp	:	std_logic_vector(1 downto 0);
+	signal memWrite :	std_logic;
+	signal aluSrc	:	std_logic;
+	signal regWrite :	std_logic;
 begin
 -- Processor Core Behaviour
 	regtableMapping : regtable PORT MAP
 	(
-		clk     => PCclk,
+		clk     => clk,
 		rst     => rst,
 		raddrA  => inst(25 downto 21),
 		raddrB  => inst(20 downto 16),
-		wen     => RegWrite,
-		waddr   => RegWriteAddr,
-		din	=> aluo2,
+		wen     => regWrite,
+		waddr   => regWriteAddr,
+		din	=> ,
 		doutA   => aluin1,
-		doutB   => aluMult,
+		doutB   => mux2Input1,
 		extaddr => regaddr,
 		extdout => regdout
 	);
@@ -123,6 +107,36 @@ begin
 		extdout	=>
 	);
 
+	controlMapping : control PORT MAP
+	(
+		inst => inst,
+		regDst => regDst,
+		jump => jump,
+		branch => branch,
+		memRead => memRead,
+		memToReg => memToReg,
+		aluOp => aluOp,
+		memWrite => memWrite,
+		aluSrc => aluSrc,
+		regWrite =>	regWrite
+	);
+
+	mux1Mapping : mux PORT MAP
+	(
+		input1 => inst(20 downto 16),
+		input2 => inst(15 downto 11),
+		selector => regDst,
+		output1 => waddr
+	);
+
+	mux2Mapping : mux PORT MAP
+	(
+		input1 => mux2Input1,
+		input2 => 
+		selector => aluSrc,
+		output1 => mux2Output,
+	)
+
 	ALUMapping : ALU PORT MAP
 	(
 		A	=> aluin1,
@@ -131,52 +145,7 @@ begin
 		Result	=> aluResult,
 		ZERO	=> ZERO
 	);
-	--Decode
-	begin
-		RegDst <= '1' when inst(31 downto 26)='000000' else '0';
-		Jump <= '1' when inst(31 downto 27)='00001' else '0';
-		Branch <= '1' when inst(31 downto 26)='000100'	else 
-			<= '1' when inst(31 downto 26)='000101' else '0';
-		MemToReg <= '1' when inst(31 downto 26)="101000" or --sb
-				inst(31 downto 26)="100011" or  --lw
-				inst(31 downto 26)="100000" or  --lb
-				inst(31 downto 26)="100100" else  --lbu  
-			'0';
-		ALUOp <= "00" when RType='1' or Branch='1' or    
-				(RegDst='1' and	inst(5 downto 0)="001000") else  --beq, bne, RType, jr
-			"01" when inst(31 downto 26)="001000" or   --addi
-				inst(31 downto 26)="001010" or   --slti
-				inst(31 downto 26)="101000"	or   --sb
-				inst(31 downto 26)="100011" or   --lw
-				inst(31 downto 26)="101011" or   --sw
-				inst(31 downto 26)="100000" or   --lb   
-				inst(31 downto 26)="100100"	else   --lbu
-			"10" when inst(31 downto 27)="00001" or   --j, jal
-				inst(31 downto 27)="00110" or     --andi, ori
-				inst(31 downto 26)="001011" or     --sltiu
-				inst(31 downto 26)="001111" else   --lui
-			"11";  --The instruction is not allowed
-		ALUSrc <= "1" when inst(31 downto 26)="001000" or  --addi
-				inst(31 downto 26)="001100" or  --andi
-				inst(31 downto 26)="001101" or  --ori
-				inst(31 downto 26)="100011" or  --lw
-				inst(31 downto 26)="101011" or  --sw
-				inst(31 downto 26)="100100" or  --lbu
-				inst(31 downto 26)="100000" or  --lb
-				inst(31 downto 26)="101000" or  --sb
-				inst(31 downto 26)="001111" or  --lui
-				inst(31 downto 26)="000100" or  --beq
-				inst(31 downto 26)="000101" or  --bne
-				inst(31 downto 26)="001010" or  --slti
-				inst(31 downto 26)="001011" else  --sltiu
-			"0";
-		RegWrite <= '1' when RType='1' or 
-				inst(31 downto 26)="100011" or  --lw
-				inst(31 downto 26)="100000" or  --lb
-				inst(31 downto 26)="100100" or  --lbu
-				inst(31 downto 26)="000011" or   --JAL
-				inst(31 downto 29)="001" else    --Operation end with 'i'
-			'0';
+
 	
 ---------------------------------------- sign_extend ----------------------------------------
 
