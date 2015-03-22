@@ -14,13 +14,7 @@ end mux;
 architecture arch_mux of mux is
 
 begin
-	process
-	begin
-		if selector = '0' then
-			output1 <= input1;
-		else
-			output1 <= input2;
-		end if;
-	end process;
+	output1 <= input1 when selector = '0' else
+		input2;
 
 end arch_mux;
