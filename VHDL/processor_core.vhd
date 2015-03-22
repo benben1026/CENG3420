@@ -96,6 +96,18 @@ architecture arch_processor_core of processor_core is
 	signal imme		:	std_logic_vector(15 downto 0);
 	signal immeExt	:	std_logic_vector(31 downto 0);
 
+	signal aluin1	:	std_logic_vector(31 downto 0);
+	signal aluResult:	std_logic_vector(31 downto 0);
+	signal regWriteAddr	:	std_logic_vector(31 downto 0);
+
+	signal mux1Output	:	std_logic_vector(31 downto 0);
+
+	signal mux2Input1	:	std_logic_vector(31 downto 0);
+	signal mux2Output	:	std_logic_vector(31 downto 0);
+
+	signal mux3Input1	:	std_logic_vector(31 downto 0);
+	signal mux3Output	:	std_logic_vector(31 downto 0);
+
 	signal mux4Input1	:	std_logic_vector(31 downto 0);
 	signal mux4Input2	:	std_logic_vector(31 downto 0);
 	signal mux4Control	:	std_logic_vector(31 downto 0);
@@ -113,6 +125,11 @@ architecture arch_processor_core of processor_core is
 	signal memWrite :	std_logic;
 	signal aluSrc	:	std_logic;
 	signal regWrite :	std_logic;
+
+	signal extwen	:	std_logic;
+	signal extaddr	:	std_logic_vector(31 downto 0);
+	signal extdin	:	std_logic_vector(31 downto 0);
+	signal extdout	:	std_logic_vector(31 downto 0);
 begin
 -- Processor Core Behaviour
 	regtableMapping : regtable PORT MAP
@@ -122,7 +139,7 @@ begin
 		raddrA  => inst(25 downto 21),
 		raddrB  => inst(20 downto 16),
 		wen     => regWrite,
-		waddr   => regWriteAddr,
+		waddr   => mux1Output,
 		din	=> mux3Output,
 		doutA   => aluin1,
 		doutB   => mux2Input1,
@@ -135,15 +152,15 @@ begin
 		clk	=> clk,
 		rst	=> rst,
 		instaddr=> PC,
-		instout	=> 
+		instout	=> inst_signal,
 		wen	=> memWrite,
 		addr	=> aluResult,
 		din	=> mux2Input1,
-		dout	=> mux3Input1
-		extwen	=> 
-		extaddr	=> 
-		extdin	=> 
-		extdout	=>
+		dout	=> mux3Input1,
+		extwen	=> extwen,
+		extaddr	=> extaddr,
+		extdin	=> extdin,
+		extdout	=>extdout
 	);
 
 	controlMapping : control PORT MAP
@@ -165,13 +182,13 @@ begin
 		input1 => inst(20 downto 16),
 		input2 => inst(15 downto 11),
 		selector => regDst,
-		output1 => waddr
+		output1 => mux1Output
 	);
 
 	mux2Mapping : mux PORT MAP
 	(
 		input1 => mux2Input1,
-		input2 => 
+		input2 => immeExt,
 		selector => aluSrc,
 		output1 => mux2Output
 	);
