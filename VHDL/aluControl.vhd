@@ -12,7 +12,7 @@ end aluControl;
 
 architecture arch_aluControl of aluControl is
 begin
-	process
+	process(func)
 	begin
 		if aluOp = "00" then
 			aluControl <= "0110"; -- add

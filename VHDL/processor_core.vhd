@@ -67,7 +67,8 @@ architecture arch_processor_core of processor_core is
 			aluOp	:	out std_logic_vector(1 downto 0);
 			memWrite:	out std_logic;
 			aluSrc	:	out std_logic;
-			regWrite:	out std_logic
+			regWrite:	out std_logic;
+			clk		:	in std_logic
 		);
 	end component;
 
@@ -132,6 +133,19 @@ architecture arch_processor_core of processor_core is
 	signal temp3	:	std_logic_vector(31 downto 0);
 begin
 -- Processor Core Behaviour
+--data memory mapping--
+	memwen <= memWrite;
+	memaddr <= aluResult;
+	memdw <= mux2Input1;
+
+	mux3Input1 <= memdr;
+--end--
+
+--instruction memory mapping--
+	instaddr <= pc;
+	PCout <= pc;
+--end--
+
 	regtableMapping : regtable PORT MAP
 	(
 		clk     => clk,
@@ -158,7 +172,8 @@ begin
 		aluOp => aluOp,
 		memWrite => memWrite,
 		aluSrc => aluSrc,
-		regWrite =>	regWrite
+		regWrite =>	regWrite,
+		clk => clk
 	);
 
 	aluControlMapping : aluCOntrol PORT MAP
@@ -205,12 +220,30 @@ begin
 		ZERO	=> ZERO
 	);
 
-	
-	inst_signal <= inst when running = '1' else
-		"00000000000000000000000000000000";
 	pcAdd4 <= pc + x"4";
 	imme <= inst_signal(15 downto 0);
 	immeExt <= std_logic_vector(resize(signed(imme), 32));
+
+	process(run)
+	begin
+		if run = '1' then
+			running <= '1';
+		end if;
+	end process;
+
+	process(clk)
+	begin
+		if clk'event and clk='1' then
+			if running = '1' then
+				inst_signal <= inst;
+				fin <= '0';
+			else
+				inst_signal <= "00000000000000000000000000000000";
+				fin <= '1';
+			end if;
+			pc <= pcNext;
+		end if;
+	end process;
 
 	mux4Input1 <= pcAdd4;
 	mux4Input2 <= pcAdd4 + std_logic_vector(shift_left(signed(immeExt), 2));

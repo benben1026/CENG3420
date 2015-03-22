@@ -23,9 +23,9 @@ V7;g_HR2_og<hKhFg`X_QS0
 !s100 gI[VfLO;Nc^Tc[1CbGH<f3
 Z8 OP;C;10.4;61
 32
-Z9 !s110 1427023674
+Z9 !s110 1427029419
 !i10b 1
-Z10 !s108 1427023674.548000
+Z10 !s108 1427029419.219000
 Z11 !s90 -reportprogress|300|-work|work|-2002|-explicit|-stats=none|D:/Benjamin/project-p1/CENG3420/VHDL/ALU.vhd|
 Z12 !s107 D:/Benjamin/project-p1/CENG3420/VHDL/ALU.vhd|
 !i113 1
@@ -52,25 +52,25 @@ R12
 R13
 R14
 Ealucontrol
-R0
+Z15 w1427028561
 R1
 R2
 R3
 R4
 R5
-Z15 8D:/Benjamin/project-p1/CENG3420/VHDL/aluControl.vhd
-Z16 FD:/Benjamin/project-p1/CENG3420/VHDL/aluControl.vhd
+Z16 8D:/Benjamin/project-p1/CENG3420/VHDL/aluControl.vhd
+Z17 FD:/Benjamin/project-p1/CENG3420/VHDL/aluControl.vhd
 l0
 L5
 VT;ke[Ca8Db>F4Nnk@7IW?3
 !s100 ?0Zdo<`k:^iEL3Q:gz]F:0
 R8
 32
-Z17 !s110 1427023678
+Z18 !s110 1427029420
 !i10b 1
-Z18 !s108 1427023678.275000
-Z19 !s90 -reportprogress|300|-work|work|-2002|-explicit|-stats=none|D:/Benjamin/project-p1/CENG3420/VHDL/aluControl.vhd|
-Z20 !s107 D:/Benjamin/project-p1/CENG3420/VHDL/aluControl.vhd|
+Z19 !s108 1427029420.537000
+Z20 !s90 -reportprogress|300|-work|work|-2002|-explicit|-stats=none|D:/Benjamin/project-p1/CENG3420/VHDL/aluControl.vhd|
+Z21 !s107 D:/Benjamin/project-p1/CENG3420/VHDL/aluControl.vhd|
 !i113 1
 R13
 R14
@@ -82,38 +82,38 @@ R4
 DEx4 work 10 alucontrol 0 22 T;ke[Ca8Db>F4Nnk@7IW?3
 l14
 L13
-Vnld]hP1aoS@Z_YaU:eLA=1
-!s100 V1Tao7`^X8k:OJK6eFN1;2
+VibjUEIH3A2h=>XZLo=@GM3
+!s100 Olbcj<b:A]2jYdR9o0^5<0
 R8
 32
-R17
-!i10b 1
 R18
+!i10b 1
 R19
 R20
+R21
 !i113 1
 R13
 R14
 Econtrol
-R0
+Z22 w1427029432
 R1
 R2
 R3
 R4
 R5
-Z21 8D:/Benjamin/project-p1/CENG3420/VHDL/control.vhd
-Z22 FD:/Benjamin/project-p1/CENG3420/VHDL/control.vhd
+Z23 8D:/Benjamin/project-p1/CENG3420/VHDL/control.vhd
+Z24 FD:/Benjamin/project-p1/CENG3420/VHDL/control.vhd
 l0
 L5
-VUKDVb<dmmiV@oj9cO<SA12
-!s100 c:1Z6gA;gU2z<Wc75[E<G3
+VOHW03DHYHXY^9goZIFJjE3
+!s100 m:gL<Il3UDH;B2A[nPKj?3
 R8
 32
-Z23 !s110 1427023677
+Z25 !s110 1427029437
 !i10b 1
-Z24 !s108 1427023677.138000
-Z25 !s90 -reportprogress|300|-work|work|-2002|-explicit|-stats=none|D:/Benjamin/project-p1/CENG3420/VHDL/control.vhd|
-Z26 !s107 D:/Benjamin/project-p1/CENG3420/VHDL/control.vhd|
+Z26 !s108 1427029437.389000
+Z27 !s90 -reportprogress|300|-work|work|-2002|-explicit|-stats=none|D:/Benjamin/project-p1/CENG3420/VHDL/control.vhd|
+Z28 !s107 D:/Benjamin/project-p1/CENG3420/VHDL/control.vhd|
 !i113 1
 R13
 R14
@@ -122,41 +122,41 @@ R1
 R2
 R3
 R4
-DEx4 work 7 control 0 22 UKDVb<dmmiV@oj9cO<SA12
-l23
-L20
-V9QPIiLcSDgE8=SV[YQVP]1
-!s100 kLI_:hF[I57ETG_XhJE:B3
+DEx4 work 7 control 0 22 OHW03DHYHXY^9goZIFJjE3
+l24
+L21
+ViOUZ^Wh_9:0^L0XDNTTPd2
+!s100 =z>UCiaC>>cgRZCDicY8E3
 R8
 32
-R23
-!i10b 1
-R24
 R25
+!i10b 1
 R26
+R27
+R28
 !i113 1
 R13
 R14
 Ememtable
-Z27 w1426865246
+Z29 w1426865246
 R1
 R2
 R3
 R4
 R5
-Z28 8D:/Benjamin/project-p1/CENG3420/VHDL/memtable.vhd
-Z29 FD:/Benjamin/project-p1/CENG3420/VHDL/memtable.vhd
+Z30 8D:/Benjamin/project-p1/CENG3420/VHDL/memtable.vhd
+Z31 FD:/Benjamin/project-p1/CENG3420/VHDL/memtable.vhd
 l0
 L6
 VEl]R6S7=<9kC:cQDLhRgT2
 !s100 =9aOFcccQXck1<OTOS5PO2
 R8
 32
-Z30 !s110 1427023671
+Z32 !s110 1427029417
 !i10b 1
-Z31 !s108 1427023671.774000
-Z32 !s90 -reportprogress|300|-work|work|-2002|-explicit|-stats=none|D:/Benjamin/project-p1/CENG3420/VHDL/memtable.vhd|
-Z33 !s107 D:/Benjamin/project-p1/CENG3420/VHDL/memtable.vhd|
+Z33 !s108 1427029417.925000
+Z34 !s90 -reportprogress|300|-work|work|-2002|-explicit|-stats=none|D:/Benjamin/project-p1/CENG3420/VHDL/memtable.vhd|
+Z35 !s107 D:/Benjamin/project-p1/CENG3420/VHDL/memtable.vhd|
 !i113 1
 R13
 R14
@@ -172,34 +172,34 @@ VNVDPfa_RkY3@RLzV[Z:eS2
 !s100 o=iL?InT[XYCZi^`LEji82
 R8
 32
-R30
-!i10b 1
-R31
 R32
+!i10b 1
 R33
+R34
+R35
 !i113 1
 R13
 R14
 Emux
-Z34 w1427023620
+Z36 w1427023620
 R1
 R2
 R3
 R4
 R5
-Z35 8D:/Benjamin/project-p1/CENG3420/VHDL/mux.vhd
-Z36 FD:/Benjamin/project-p1/CENG3420/VHDL/mux.vhd
+Z37 8D:/Benjamin/project-p1/CENG3420/VHDL/mux.vhd
+Z38 FD:/Benjamin/project-p1/CENG3420/VHDL/mux.vhd
 l0
 L5
 Vh>5SMgNVQdO6himH6_ZY91
 !s100 4TaCc]bjZD@I44VeI1[Cj0
 R8
 32
-Z37 !s110 1427023675
+R9
 !i10b 1
-Z38 !s108 1427023675.897000
-Z39 !s90 -reportprogress|300|-work|work|-2002|-explicit|-stats=none|D:/Benjamin/project-p1/CENG3420/VHDL/mux.vhd|
-Z40 !s107 D:/Benjamin/project-p1/CENG3420/VHDL/mux.vhd|
+Z39 !s108 1427029419.841000
+Z40 !s90 -reportprogress|300|-work|work|-2002|-explicit|-stats=none|D:/Benjamin/project-p1/CENG3420/VHDL/mux.vhd|
+Z41 !s107 D:/Benjamin/project-p1/CENG3420/VHDL/mux.vhd|
 !i113 1
 R13
 R14
@@ -215,34 +215,34 @@ V`5=4=_idzS25BfBJRNR@B2
 !s100 <]Q45e4OgQ?=b8:A?ednR1
 R8
 32
-R37
+R9
 !i10b 1
-R38
 R39
 R40
+R41
 !i113 1
 R13
 R14
 Eprocessor
-Z41 w1426946003
+Z42 w1426946003
 R1
 R2
 R3
 R4
 R5
-Z42 8D:/Benjamin/project-p1/CENG3420/VHDL/processor.vhd
-Z43 FD:/Benjamin/project-p1/CENG3420/VHDL/processor.vhd
+Z43 8D:/Benjamin/project-p1/CENG3420/VHDL/processor.vhd
+Z44 FD:/Benjamin/project-p1/CENG3420/VHDL/processor.vhd
 l0
 L5
 V=9]ZOjC?0:L]SgjTiP]aT3
 !s100 Y2O8<ZDMWI]WEz0o[?BdA2
 R8
 32
-Z44 !s110 1427023679
+Z45 !s110 1427029421
 !i10b 1
-Z45 !s108 1427023679.620000
-Z46 !s90 -reportprogress|300|-work|work|-2002|-explicit|-stats=none|D:/Benjamin/project-p1/CENG3420/VHDL/processor.vhd|
-Z47 !s107 D:/Benjamin/project-p1/CENG3420/VHDL/processor.vhd|
+Z46 !s108 1427029421.160000
+Z47 !s90 -reportprogress|300|-work|work|-2002|-explicit|-stats=none|D:/Benjamin/project-p1/CENG3420/VHDL/processor.vhd|
+Z48 !s107 D:/Benjamin/project-p1/CENG3420/VHDL/processor.vhd|
 !i113 1
 R13
 R14
@@ -258,52 +258,52 @@ V40;>m6BZWLPi=KSWGmZQ81
 !s100 Uil27Ol^i5G:a]a003ER70
 R8
 32
-R44
-!i10b 1
 R45
+!i10b 1
 R46
 R47
+R48
 !i113 1
 R13
 R14
 Eprocessor_core
-Z48 w1427023253
-Z49 DPx4 ieee 11 numeric_std 0 22 :ASDNFgHXf_ih3J@9F3Ze1
+Z49 w1427029347
+Z50 DPx4 ieee 11 numeric_std 0 22 :ASDNFgHXf_ih3J@9F3Ze1
 R1
 R2
 R3
 R4
 R5
-Z50 8D:/Benjamin/project-p1/CENG3420/VHDL/processor_core.vhd
-Z51 FD:/Benjamin/project-p1/CENG3420/VHDL/processor_core.vhd
+Z51 8D:/Benjamin/project-p1/CENG3420/VHDL/processor_core.vhd
+Z52 FD:/Benjamin/project-p1/CENG3420/VHDL/processor_core.vhd
 l0
 L6
 VdOOG2gUa^YRa813][JC840
 !s100 An22Skf6;P09;A<SXSX0o0
 R8
 32
-Z52 !s110 1427023681
+R45
 !i10b 1
-Z53 !s108 1427023681.006000
+Z53 !s108 1427029421.784000
 Z54 !s90 -reportprogress|300|-work|work|-2002|-explicit|-stats=none|D:/Benjamin/project-p1/CENG3420/VHDL/processor_core.vhd|
 Z55 !s107 D:/Benjamin/project-p1/CENG3420/VHDL/processor_core.vhd|
 !i113 1
 R13
 R14
 Aarch_processor_core
-R49
+R50
 R1
 R2
 R3
 R4
 DEx4 work 14 processor_core 0 22 dOOG2gUa^YRa813][JC840
-l133
+l134
 L24
-Vnn7Scf]CM5eSY8[Yh95kh2
-!s100 aB_UmYDTLTA4cKh<]Le;41
+VWjUm[BbPgKDJUG@^M__2T3
+!s100 0B5o2[K>_nPV50QHHlF;k0
 R8
 32
-R52
+R45
 !i10b 1
 R53
 R54
@@ -312,7 +312,7 @@ R55
 R13
 R14
 Eprocessor_tb
-R27
+R29
 R1
 R2
 R4
@@ -326,9 +326,9 @@ V0m2n>`VRBYoWAV=VkGJV]0
 !s100 8nO6XCVXWY]=R5QkoU?D`2
 R8
 32
-Z58 !s110 1427023682
+Z58 !s110 1427029422
 !i10b 1
-Z59 !s108 1427023682.594000
+Z59 !s108 1427029422.383000
 Z60 !s90 -reportprogress|300|-work|work|-2002|-explicit|-stats=none|D:/Benjamin/project-p1/CENG3420/VHDL/processor_tb.vhd|
 Z61 !s107 D:/Benjamin/project-p1/CENG3420/VHDL/processor_tb.vhd|
 !i113 1
@@ -339,11 +339,11 @@ R1
 R2
 R4
 R3
-Z62 DEx4 work 12 processor_tb 0 22 0m2n>`VRBYoWAV=VkGJV]0
+DEx4 work 12 processor_tb 0 22 0m2n>`VRBYoWAV=VkGJV]0
 l47
 L15
-Z63 V@Mdn5=0;SGCPQ]f9iGhI72
-Z64 !s100 F@U`;jeGHAIf9lX0X8l?O2
+V@Mdn5=0;SGCPQ]f9iGhI72
+!s100 F@U`;jeGHAIf9lX0X8l?O2
 R8
 32
 R58
@@ -355,25 +355,25 @@ R61
 R13
 R14
 Eregtable
-R27
+R29
 R1
 R2
 R3
 R4
 R5
-Z65 8D:/Benjamin/project-p1/CENG3420/VHDL/regtable.vhd
-Z66 FD:/Benjamin/project-p1/CENG3420/VHDL/regtable.vhd
+Z62 8D:/Benjamin/project-p1/CENG3420/VHDL/regtable.vhd
+Z63 FD:/Benjamin/project-p1/CENG3420/VHDL/regtable.vhd
 l0
 L6
 VIJXn0PL]e0=Hi;Kao<4d>2
 !s100 VXMB[8eo5j1no?ii3znVH1
 R8
 32
-Z67 !s110 1427023673
+Z64 !s110 1427029418
 !i10b 1
-Z68 !s108 1427023673.141000
-Z69 !s90 -reportprogress|300|-work|work|-2002|-explicit|-stats=none|D:/Benjamin/project-p1/CENG3420/VHDL/regtable.vhd|
-Z70 !s107 D:/Benjamin/project-p1/CENG3420/VHDL/regtable.vhd|
+Z65 !s108 1427029418.582000
+Z66 !s90 -reportprogress|300|-work|work|-2002|-explicit|-stats=none|D:/Benjamin/project-p1/CENG3420/VHDL/regtable.vhd|
+Z67 !s107 D:/Benjamin/project-p1/CENG3420/VHDL/regtable.vhd|
 !i113 1
 R13
 R14
@@ -389,11 +389,11 @@ VTSL_8AgER9TUd6o@e?NmE2
 !s100 c7G^JdhU0e6kEZ0BjF:443
 R8
 32
-R67
+R64
 !i10b 1
-R68
-R69
-R70
+R65
+R66
+R67
 !i113 1
 R13
 R14
