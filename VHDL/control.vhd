@@ -18,7 +18,8 @@ entity control is
 end control;
 
 architecture arch_control of control is
-signal opcode <= inst(31 downto 26);
+signal opcode : std_logic_vector (5 downto 0) := inst(31 downto 26);
+signal funct : std_logic_vector (5 downto 0) := inst(5 downto 0);
 begin
 	regdst	<=	'1' when opcode = "000000" else '0';
 	jump <= '1' when opcode(5 downto 1) = "00001" else '0'; -- j or jal
