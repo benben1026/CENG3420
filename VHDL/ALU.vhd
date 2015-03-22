@@ -5,7 +5,7 @@ use ieee.std_logic_arith.all;
 
 entity ALU is
 	port (
-	  cpuclk : in std_logic;
+	  clk : in std_logic;
 		A	:	in std_logic_vector (31 downto 0);
 		B	:	in std_logic_vector (31 downto 0);
 		op	:	in std_logic_vector (3 downto 0);
@@ -17,13 +17,13 @@ end ALU;
 
 architecture arch_ALU of ALU is 
 begin
-  process(cpuclk, A, B, op)
+  process(clk, A, B, op)
     variable msb_a: std_logic;
     variable msb_b: std_logic;
     variable temp: std_logic;
     variable temp_res: std_logic_vector (31 downto 0);
     begin
-    if (rising_edge(cpuclk)) then
+    if (rising_edge(clk)) then
         case op is
           -- addition
           when "0000" =>

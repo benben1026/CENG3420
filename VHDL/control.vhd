@@ -19,10 +19,10 @@ end control;
 
 architecture arch_control of control is
 begin
-	RegDst <= '1' when inst(31 downto 26)='000000' else '0';
-		Jump <= '1' when inst(31 downto 27)='00001' else '0';
-		Branch <= '1' when inst(31 downto 26)='000100'	else 
-			 '1' when inst(31 downto 26)='000101' else '0';
+	RegDst <= '1' when inst(31 downto 26)="000000" else '0';
+		Jump <= '1' when inst(31 downto 27)="00001" else '0';
+		Branch <= '1' when inst(31 downto 26)="000100"	else 
+			 '1' when inst(31 downto 26)="000101" else '0';
 		MemToReg <= '1' when inst(31 downto 26)="101000" or --sb
 				inst(31 downto 26)="100011" or  --lw
 				inst(31 downto 26)="100000" or  --lb

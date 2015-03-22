@@ -14,7 +14,7 @@ end mux;
 architecture arch_mux of mux is
 
 begin
-	process()
+	process
 	begin
 		if selector = '0' then
 			output1 <= input1;

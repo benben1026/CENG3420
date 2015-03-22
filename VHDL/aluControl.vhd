@@ -4,8 +4,8 @@ use ieee.std_logic_unsigned.all;
 
 entity aluControl is
 	port(
-		func : in std_logic_vector(5 downto 0),
-		aluOp : in std_logic_vector (1 downto 0),
+		func : in std_logic_vector(5 downto 0);
+		aluOp : in std_logic_vector (1 downto 0);
 		aluControl : out std_logic_vector(3 downto 0)
 	);
 end aluControl;
