@@ -26,7 +26,7 @@ begin
 	begin
 		if clk'event and clk='1' then
 			opcode <= inst(31 downto 26);
-			funct <= inst(31 downto 26);
+			funct <= inst(5 downto 0);
 			if opcode = "000000" then 
 				regdst <= '1';
 			else 

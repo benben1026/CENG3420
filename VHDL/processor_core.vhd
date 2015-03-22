@@ -270,7 +270,7 @@ begin
 		output1 => mux5Input1
 	);
 
-	mux5Input2 <= pcAdd4 + std_logic_vector(resize(shift_left(signed(inst_signal(25 downto 0)), 2), 32));
+	mux5Input2 <= pcAdd4 + std_logic_vector(resize(shift_left(signed(inst(25 downto 0)), 2), 32));
 	mux5Mapping : mux PORT MAP
 	(
 		input1 => mux5Input1,
