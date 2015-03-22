@@ -19,14 +19,14 @@ begin
 		elsif aluOp = "01" then
 			aluControl <= "1110"; --sub
 		elsif aluOp = "10" then
-			aluControl <= "0110" when inst(31 downto 26)="100000" else -- add
-				"1110" when inst(31 downto 26)="100010" else -- beq
-				"0000" when inst(31 downto 26)="100100" else -- and
-				"0001" when inst(31 downto 26)="100101" else -- or
-				"0010" when inst(31 downto 26)="100110" else -- xor
-				"0011" when inst(31 downto 26)="100111" else -- nor
-				"1111" when inst(31 downto 26)="101010" else -- slt
-				"1001"
+			aluControl <= "0110" when func="100000" else -- add
+				"1110" when func="100010" else -- beq
+				"0000" when func="100100" else -- and
+				"0001" when func="100101" else -- or
+				"0010" when func="100110" else -- xor
+				"0011" when func="100111" else -- nor
+				"1111" when func="101010" else -- slt
+				"1001" when others;
 		else
 			aluControl <= "1001";
 		end if;

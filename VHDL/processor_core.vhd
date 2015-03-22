@@ -64,6 +64,28 @@ architecture arch_processor_core of processor_core is
 		);
 	end component;
 
+	component aluControl
+		port(
+			func	:	in std_logic_vector(5 downto 0);
+			aluOp	:	in std_logic_vector(1 downto 0);
+			aluControl:	out std_logic_vector(3 downto 0)
+		);
+	end component;
+
+	component control
+		port(
+			inst	:	in std_logic_vector(31 downto 0);
+			regDst	:	out std_logic;
+			jump	:	out std_logic;
+			branch	:	out std_logic;
+			memRead	:	out std_logic;
+			memToReg:	out std_logic;
+			aluOp	:	out std_logic_vector(1 downto 0);
+			memWrite:	out std_logic;
+			aluSrc	:	out std_logic;
+			regWrite:	out std_logic
+		);
+	end component;
 -- Add signals here
 	signal running	:	std_logic;
 
