@@ -86,7 +86,7 @@ architecture arch_processor_core of processor_core is
 
 	signal inst_signal : std_logic_vector(31 downto 0);
 	signal pc 		:	std_logic_vector(31 downto 0) := x"00004000";
-	signal pcAdd4	:	std_logic_vector(31 downto 0);
+	signal pcAdd4	:	std_logic_vector(31 downto 0) := x"00004004";
 	signal pcNext	:	std_logic_vector(31 downto 0);
 	signal imme		:	std_logic_vector(15 downto 0);
 	signal immeExt	:	std_logic_vector(31 downto 0);
@@ -131,17 +131,17 @@ architecture arch_processor_core of processor_core is
 	signal temp1	:	std_logic_vector(31 downto 0);
 	signal temp2	:	std_logic_vector(31 downto 0);
 	signal temp3	:	std_logic_vector(31 downto 0);
+
+	signal flag	:	std_logic := '1';
 begin
 -- Processor Core Behaviour
 	process(run)
 	begin
 		if run = '1' then
 			running <= '1';
-			pc <= x"00004000";
-			pcNext <= x"00004000";
-			instaddr <= x"00004000";
-		else
-			running <= '0';
+			--pc <= x"00004000";
+			--pcNext <= x"00004004";
+			--instaddr <= x"00004000";
 		end if;
 	end process;
 
@@ -151,10 +151,25 @@ begin
 			if running = '1' then
 				inst_signal <= inst;
 				fin <= '0';
-				pc <= pcNext;
+
+				pcAdd4 <= pc + x"4";
+				imme <= inst(15 downto 0);
+				immeExt <= std_logic_vector(resize(signed(imme), 32));
+
+
+				mux4Input1 <= pcAdd4;
+				mux4Input2 <= pcAdd4 + std_logic_vector(shift_left(signed(immeExt), 2));
+				mux4Control <= branch and ZERO;
+				if flag = '1' then
+					pc <= x"00004000";
+					flag <= '0';
+				else
+					pc <= pcNext;
+				end if;
 			else
 				inst_signal <= "00000000000000000000000000000000";
 				fin <= '1';
+				flag <= '1';
 			end if;
 		end if;
 	end process;
@@ -246,24 +261,16 @@ begin
 		ZERO	=> ZERO
 	);
 
-	pcAdd4 <= pc + x"4";
-	imme <= inst_signal(15 downto 0);
-	immeExt <= std_logic_vector(resize(signed(imme), 32));
-
-
-	mux4Input1 <= pcAdd4;
-	mux4Input2 <= pcAdd4 + std_logic_vector(shift_left(signed(immeExt), 2));
-	mux4Control <= branch and ZERO;
 
 	mux4Mapping : mux PORT MAP
 	(
-		input1 => mux4Input1,
+		input1 => pcAdd4,
 		input2 => mux4Input2,
 		selector => mux4Control,
 		output1 => mux5Input1
 	);
 
-	mux5Input1 <= pcAdd4 + std_logic_vector(resize(shift_left(signed(inst_signal(25 downto 0)), 2), 32));
+	mux5Input2 <= pcAdd4 + std_logic_vector(resize(shift_left(signed(inst_signal(25 downto 0)), 2), 32));
 	mux5Mapping : mux PORT MAP
 	(
 		input1 => mux5Input1,
@@ -275,8 +282,8 @@ begin
 
 ---------------------------------------- sign_extend ----------------------------------------
 
-  immeExt <= "1111111111111111" & inst(15 downto 0) when inst(15)='1'
-		 else "0000000000000000" & inst(15 downto 0);	 
+ -- immeExt <= "1111111111111111" & inst(15 downto 0) when inst(15)='1'
+--		 else "0000000000000000" & inst(15 downto 0);	 
 
 ---------------------------------------- sign_extend ----------------------------------------
 

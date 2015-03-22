@@ -15,9 +15,9 @@ begin
 	process(func)
 	begin
 		if aluOp = "00" then
-			aluControl <= "0110"; -- add
+			aluControl <= "0000"; -- add
 		elsif aluOp = "01" then
-			aluControl <= "1110"; --sub
+			aluControl <= "0010"; --sub
 		elsif aluOp = "10" then
 		  case func is
 		    when "100000" =>
