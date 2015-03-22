@@ -39,23 +39,6 @@ architecture arch_processor_core of processor_core is
 		);
 	end component;
 
-	component memtable
-		port (
-			clk		:	in std_logic;
-			rst		:	in std_logic;
-			instaddr:	in std_logic_vector(31 downto 0);
-			instout	:	out std_logic_vector(31 downto 0);
-			wen		:	in std_logic;
-			addr	:	in std_logic_vector(31 downto 0);
-			din		:	in std_logic_vector(31 downto 0);
-			dout	:	out std_logic_vector(31 downto 0);
-			extwen	:	in std_logic;
-			extaddr	:	in std_logic_vector(31 downto 0);
-			extdin	:	in std_logic_vector(31 downto 0);
-			extdout	:	out std_logic_vector(31 downto 0)
-		);
-	end component;
-
 	component mux
 		port(
 			input1	:	in std_logic_vector(31 downto 0);
@@ -162,22 +145,6 @@ begin
 		doutB   => mux2Input1,
 		extaddr => regaddr,
 		extdout => regdout
-	);
-
-	memtableMapping : memtable PORT MAP
-	(
-		clk	=> clk,
-		rst	=> rst,
-		instaddr=> PC,
-		instout	=> inst_signal,
-		wen	=> memWrite,
-		addr	=> aluResult,
-		din	=> mux2Input1,
-		dout	=> mux3Input1,
-		extwen	=> extwen,
-		extaddr	=> extaddr,
-		extdin	=> extdin,
-		extdout	=>extdout
 	);
 
 	controlMapping : control PORT MAP
