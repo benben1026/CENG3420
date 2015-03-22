@@ -65,6 +65,23 @@ architecture arch_processor_core of processor_core is
 	end component;
 
 -- Add signals here
+	signal running	:	std_logic;
+
+	signal inst_signal : std_logic_vector(31 downto 0);
+	signal pc 		:	std_logic_vector(31 downto 0) := x"00004000";
+	signal pcAdd4	:	std_logic_vector(31 downto 0);
+	signal pcNext	:	std_logic_vector(31 downto 0);
+	signal imme		:	std_logic_vector(15 downto 0);
+	signal immeExt	:	std_logic_vector(31 downto 0);
+
+	signal mux4Input1	:	std_logic_vector(31 downto 0);
+	signal mux4Input2	:	std_logic_vector(31 downto 0);
+	signal mux4Control	:	std_logic_vector(31 downto 0);
+
+	signal mux5Input1	:	std_logic_vector(31 downto 0);
+	signal mux5Input2	:	std_logic_vector(31 downto 0);
+	signal mux5Control	:	std_logic_vector(31 downto 0);
+
 	signal regDst	: 	std_logic;
 	signal jump		: 	std_logic;
 	signal branch	:	std_logic;
@@ -155,6 +172,34 @@ begin
 	);
 
 	
+	inst_signal <= inst when running = '1' else
+		"00000000000000000000000000000000";
+	pcAdd4 <= pc + x"4";
+	imme <= inst_signal(15 downto 0);
+	immeExt <= std_logic_vector(resize(signed(imme), 32));
+
+	mux4Input1 <= pcAdd4;
+	mux4Input2 <= pcAdd4 + std_logic_vector(shift_left(signed(immeExt), 2));
+	mux4Control <= branch and ZERO;
+
+	mux4Mapping : mux PORT MAP
+	(
+		input1 => mux4Input1,
+		input2 => mux4Input2,
+		selector => mux4Control,
+		outpu1 => mux5Input1,
+	)
+
+	mux5Input1 <= pcAdd4 + std_logic_vector(resize(shift_left(inst_signal(25 downto 0), 2), 32));
+	mux5Mapping : mux PORT MAP
+	(
+		input1 => mux5Input1,
+		input2 => mux5Input2,
+		selector => jump,
+		output1 => pcNext,
+	)
+
+
 ---------------------------------------- sign_extend ----------------------------------------
 
   SignExtension <= "1111111111111111" & inst(15 downto 0) when inst(15)='1'
