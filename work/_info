@@ -23,9 +23,9 @@ V7;g_HR2_og<hKhFg`X_QS0
 !s100 gI[VfLO;Nc^Tc[1CbGH<f3
 Z8 OP;C;10.4;61
 32
-Z9 !s110 1427029419
+Z9 !s110 1427033165
 !i10b 1
-Z10 !s108 1427029419.219000
+Z10 !s108 1427033165.341000
 Z11 !s90 -reportprogress|300|-work|work|-2002|-explicit|-stats=none|D:/Benjamin/project-p1/CENG3420/VHDL/ALU.vhd|
 Z12 !s107 D:/Benjamin/project-p1/CENG3420/VHDL/ALU.vhd|
 !i113 1
@@ -52,7 +52,7 @@ R12
 R13
 R14
 Ealucontrol
-Z15 w1427028561
+Z15 w1427030019
 R1
 R2
 R3
@@ -66,9 +66,9 @@ VT;ke[Ca8Db>F4Nnk@7IW?3
 !s100 ?0Zdo<`k:^iEL3Q:gz]F:0
 R8
 32
-Z18 !s110 1427029420
+Z18 !s110 1427033168
 !i10b 1
-Z19 !s108 1427029420.537000
+Z19 !s108 1427033168.136000
 Z20 !s90 -reportprogress|300|-work|work|-2002|-explicit|-stats=none|D:/Benjamin/project-p1/CENG3420/VHDL/aluControl.vhd|
 Z21 !s107 D:/Benjamin/project-p1/CENG3420/VHDL/aluControl.vhd|
 !i113 1
@@ -95,7 +95,7 @@ R21
 R13
 R14
 Econtrol
-Z22 w1427029432
+Z22 w1427031124
 R1
 R2
 R3
@@ -109,9 +109,9 @@ VOHW03DHYHXY^9goZIFJjE3
 !s100 m:gL<Il3UDH;B2A[nPKj?3
 R8
 32
-Z25 !s110 1427029437
+Z25 !s110 1427033167
 !i10b 1
-Z26 !s108 1427029437.389000
+Z26 !s108 1427033167.325000
 Z27 !s90 -reportprogress|300|-work|work|-2002|-explicit|-stats=none|D:/Benjamin/project-p1/CENG3420/VHDL/control.vhd|
 Z28 !s107 D:/Benjamin/project-p1/CENG3420/VHDL/control.vhd|
 !i113 1
@@ -152,9 +152,9 @@ VEl]R6S7=<9kC:cQDLhRgT2
 !s100 =9aOFcccQXck1<OTOS5PO2
 R8
 32
-Z32 !s110 1427029417
+Z32 !s110 1427033162
 !i10b 1
-Z33 !s108 1427029417.925000
+Z33 !s108 1427033162.854000
 Z34 !s90 -reportprogress|300|-work|work|-2002|-explicit|-stats=none|D:/Benjamin/project-p1/CENG3420/VHDL/memtable.vhd|
 Z35 !s107 D:/Benjamin/project-p1/CENG3420/VHDL/memtable.vhd|
 !i113 1
@@ -195,11 +195,11 @@ Vh>5SMgNVQdO6himH6_ZY91
 !s100 4TaCc]bjZD@I44VeI1[Cj0
 R8
 32
-R9
+Z39 !s110 1427033166
 !i10b 1
-Z39 !s108 1427029419.841000
-Z40 !s90 -reportprogress|300|-work|work|-2002|-explicit|-stats=none|D:/Benjamin/project-p1/CENG3420/VHDL/mux.vhd|
-Z41 !s107 D:/Benjamin/project-p1/CENG3420/VHDL/mux.vhd|
+Z40 !s108 1427033166.385000
+Z41 !s90 -reportprogress|300|-work|work|-2002|-explicit|-stats=none|D:/Benjamin/project-p1/CENG3420/VHDL/mux.vhd|
+Z42 !s107 D:/Benjamin/project-p1/CENG3420/VHDL/mux.vhd|
 !i113 1
 R13
 R14
@@ -215,32 +215,32 @@ V`5=4=_idzS25BfBJRNR@B2
 !s100 <]Q45e4OgQ?=b8:A?ednR1
 R8
 32
-R9
-!i10b 1
 R39
+!i10b 1
 R40
 R41
+R42
 !i113 1
 R13
 R14
 Eprocessor
-Z42 w1426946003
+Z43 w1426946003
 R1
 R2
 R3
 R4
 R5
-Z43 8D:/Benjamin/project-p1/CENG3420/VHDL/processor.vhd
-Z44 FD:/Benjamin/project-p1/CENG3420/VHDL/processor.vhd
+Z44 8D:/Benjamin/project-p1/CENG3420/VHDL/processor.vhd
+Z45 FD:/Benjamin/project-p1/CENG3420/VHDL/processor.vhd
 l0
 L5
 V=9]ZOjC?0:L]SgjTiP]aT3
 !s100 Y2O8<ZDMWI]WEz0o[?BdA2
 R8
 32
-Z45 !s110 1427029421
+R18
 !i10b 1
-Z46 !s108 1427029421.160000
+Z46 !s108 1427033168.792000
 Z47 !s90 -reportprogress|300|-work|work|-2002|-explicit|-stats=none|D:/Benjamin/project-p1/CENG3420/VHDL/processor.vhd|
 Z48 !s107 D:/Benjamin/project-p1/CENG3420/VHDL/processor.vhd|
 !i113 1
@@ -258,7 +258,7 @@ V40;>m6BZWLPi=KSWGmZQ81
 !s100 Uil27Ol^i5G:a]a003ER70
 R8
 32
-R45
+R18
 !i10b 1
 R46
 R47
@@ -267,7 +267,7 @@ R48
 R13
 R14
 Eprocessor_core
-Z49 w1427029347
+Z49 w1427033858
 Z50 DPx4 ieee 11 numeric_std 0 22 :ASDNFgHXf_ih3J@9F3Ze1
 R1
 R2
@@ -282,11 +282,11 @@ VdOOG2gUa^YRa813][JC840
 !s100 An22Skf6;P09;A<SXSX0o0
 R8
 32
-R45
+Z53 !s110 1427033948
 !i10b 1
-Z53 !s108 1427029421.784000
-Z54 !s90 -reportprogress|300|-work|work|-2002|-explicit|-stats=none|D:/Benjamin/project-p1/CENG3420/VHDL/processor_core.vhd|
-Z55 !s107 D:/Benjamin/project-p1/CENG3420/VHDL/processor_core.vhd|
+Z54 !s108 1427033948.019000
+Z55 !s90 -reportprogress|300|-work|work|-2002|-explicit|-stats=none|D:/Benjamin/project-p1/CENG3420/VHDL/processor_core.vhd|
+Z56 !s107 D:/Benjamin/project-p1/CENG3420/VHDL/processor_core.vhd|
 !i113 1
 R13
 R14
@@ -296,18 +296,18 @@ R1
 R2
 R3
 R4
-DEx4 work 14 processor_core 0 22 dOOG2gUa^YRa813][JC840
+Z57 DEx4 work 14 processor_core 0 22 dOOG2gUa^YRa813][JC840
 l134
 L24
-VWjUm[BbPgKDJUG@^M__2T3
-!s100 0B5o2[K>_nPV50QHHlF;k0
+Vf4@Q=o0kJ_m^EGK=>LVG:1
+!s100 YMm_L2H4Nhf5PIa1DooT81
 R8
 32
-R45
-!i10b 1
 R53
+!i10b 1
 R54
 R55
+R56
 !i113 1
 R13
 R14
@@ -318,19 +318,19 @@ R2
 R4
 R3
 R5
-Z56 8D:/Benjamin/project-p1/CENG3420/VHDL/processor_tb.vhd
-Z57 FD:/Benjamin/project-p1/CENG3420/VHDL/processor_tb.vhd
+Z58 8D:/Benjamin/project-p1/CENG3420/VHDL/processor_tb.vhd
+Z59 FD:/Benjamin/project-p1/CENG3420/VHDL/processor_tb.vhd
 l0
 L7
 V0m2n>`VRBYoWAV=VkGJV]0
 !s100 8nO6XCVXWY]=R5QkoU?D`2
 R8
 32
-Z58 !s110 1427029422
+Z60 !s110 1427033170
 !i10b 1
-Z59 !s108 1427029422.383000
-Z60 !s90 -reportprogress|300|-work|work|-2002|-explicit|-stats=none|D:/Benjamin/project-p1/CENG3420/VHDL/processor_tb.vhd|
-Z61 !s107 D:/Benjamin/project-p1/CENG3420/VHDL/processor_tb.vhd|
+Z61 !s108 1427033170.184000
+Z62 !s90 -reportprogress|300|-work|work|-2002|-explicit|-stats=none|D:/Benjamin/project-p1/CENG3420/VHDL/processor_tb.vhd|
+Z63 !s107 D:/Benjamin/project-p1/CENG3420/VHDL/processor_tb.vhd|
 !i113 1
 R13
 R14
@@ -346,11 +346,11 @@ V@Mdn5=0;SGCPQ]f9iGhI72
 !s100 F@U`;jeGHAIf9lX0X8l?O2
 R8
 32
-R58
-!i10b 1
-R59
 R60
+!i10b 1
 R61
+R62
+R63
 !i113 1
 R13
 R14
@@ -361,19 +361,19 @@ R2
 R3
 R4
 R5
-Z62 8D:/Benjamin/project-p1/CENG3420/VHDL/regtable.vhd
-Z63 FD:/Benjamin/project-p1/CENG3420/VHDL/regtable.vhd
+Z64 8D:/Benjamin/project-p1/CENG3420/VHDL/regtable.vhd
+Z65 FD:/Benjamin/project-p1/CENG3420/VHDL/regtable.vhd
 l0
 L6
 VIJXn0PL]e0=Hi;Kao<4d>2
 !s100 VXMB[8eo5j1no?ii3znVH1
 R8
 32
-Z64 !s110 1427029418
+Z66 !s110 1427033164
 !i10b 1
-Z65 !s108 1427029418.582000
-Z66 !s90 -reportprogress|300|-work|work|-2002|-explicit|-stats=none|D:/Benjamin/project-p1/CENG3420/VHDL/regtable.vhd|
-Z67 !s107 D:/Benjamin/project-p1/CENG3420/VHDL/regtable.vhd|
+Z67 !s108 1427033164.229000
+Z68 !s90 -reportprogress|300|-work|work|-2002|-explicit|-stats=none|D:/Benjamin/project-p1/CENG3420/VHDL/regtable.vhd|
+Z69 !s107 D:/Benjamin/project-p1/CENG3420/VHDL/regtable.vhd|
 !i113 1
 R13
 R14
@@ -389,11 +389,11 @@ VTSL_8AgER9TUd6o@e?NmE2
 !s100 c7G^JdhU0e6kEZ0BjF:443
 R8
 32
-R64
-!i10b 1
-R65
 R66
+!i10b 1
 R67
+R68
+R69
 !i113 1
 R13
 R14

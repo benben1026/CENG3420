@@ -133,6 +133,32 @@ architecture arch_processor_core of processor_core is
 	signal temp3	:	std_logic_vector(31 downto 0);
 begin
 -- Processor Core Behaviour
+	process(run)
+	begin
+		if run = '1' then
+			running <= '1';
+			pc <= x"00004000";
+			pcNext <= x"00004000";
+			instaddr <= x"00004000";
+		else
+			running <= '0';
+		end if;
+	end process;
+
+	process(clk)
+	begin
+		if clk'event and clk='1' then
+			if running = '1' then
+				inst_signal <= inst;
+				fin <= '0';
+				pc <= pcNext;
+			else
+				inst_signal <= "00000000000000000000000000000000";
+				fin <= '1';
+			end if;
+		end if;
+	end process;
+
 --data memory mapping--
 	memwen <= memWrite;
 	memaddr <= aluResult;
@@ -224,26 +250,6 @@ begin
 	imme <= inst_signal(15 downto 0);
 	immeExt <= std_logic_vector(resize(signed(imme), 32));
 
-	process(run)
-	begin
-		if run = '1' then
-			running <= '1';
-		end if;
-	end process;
-
-	process(clk)
-	begin
-		if clk'event and clk='1' then
-			if running = '1' then
-				inst_signal <= inst;
-				fin <= '0';
-			else
-				inst_signal <= "00000000000000000000000000000000";
-				fin <= '1';
-			end if;
-			pc <= pcNext;
-		end if;
-	end process;
 
 	mux4Input1 <= pcAdd4;
 	mux4Input2 <= pcAdd4 + std_logic_vector(shift_left(signed(immeExt), 2));
