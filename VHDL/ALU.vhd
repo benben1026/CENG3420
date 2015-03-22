@@ -9,13 +9,13 @@ entity ALU is
 		A	:	in std_logic_vector (31 downto 0);
 		B	:	in std_logic_vector (31 downto 0);
 		op	:	in std_logic_vector (3 downto 0);
-		less: out std_logic;
 		result	:	out std_logic_vector (31 downto 0);
-		zeroout : out std_logic
+		ZERO : out std_logic
 	);
 end ALU;
 
 architecture arch_ALU of ALU is 
+signal less : std_logic;
 begin
   process(clk, A, B, op)
     variable msb_a: std_logic;
@@ -84,7 +84,7 @@ begin
         for ii in 2 to 31 loop
           temp := temp or temp_res(ii);
         end loop;
-        zeroout <= not temp;
+        ZERO <= not temp;
       end if;
       
     end process;
