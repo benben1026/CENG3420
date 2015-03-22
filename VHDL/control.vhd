@@ -49,6 +49,7 @@ begin
 				memToReg <= '0';
 			end if;
 
+<<<<<<< HEAD
 			if opcode (5 downto 4) = "10" then
 				aluop <= "00";
 			elsif opcode (5 downto 1) = "00010" then
@@ -78,3 +79,6 @@ begin
 		end if;
 	end process;
 end arch_control;
+=======
+end arch_control;
+>>>>>>> 74ec0d34e551dddfdf146f2c54580746053aaaa8
