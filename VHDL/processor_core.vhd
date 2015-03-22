@@ -1,6 +1,7 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.std_logic_unsigned.all;
+use ieee.numeric_std.all;
 
 entity processor_core is
 	port (
@@ -86,6 +87,16 @@ architecture arch_processor_core of processor_core is
 			regWrite:	out std_logic
 		);
 	end component;
+
+	component ALU
+		port (
+	  		A	:	in std_logic_vector (31 downto 0);
+			B	:	in std_logic_vector (31 downto 0);
+			op	:	in std_logic_vector (3 downto 0);
+			result	:	out std_logic_vector (31 downto 0);
+			ZERO : out std_logic
+	);
+	end component;
 -- Add signals here
 	signal running	:	std_logic;
 
@@ -99,8 +110,10 @@ architecture arch_processor_core of processor_core is
 	signal aluin1	:	std_logic_vector(31 downto 0);
 	signal aluResult:	std_logic_vector(31 downto 0);
 	signal regWriteAddr	:	std_logic_vector(31 downto 0);
+	signal ZERO	:	std_logic;
+	signal aluControlSignal	:	std_logic_vector(3 downto 0);
 
-	signal mux1Output	:	std_logic_vector(31 downto 0);
+	signal mux1Output	:	std_logic_vector(4 downto 0);
 
 	signal mux2Input1	:	std_logic_vector(31 downto 0);
 	signal mux2Output	:	std_logic_vector(31 downto 0);
@@ -110,11 +123,11 @@ architecture arch_processor_core of processor_core is
 
 	signal mux4Input1	:	std_logic_vector(31 downto 0);
 	signal mux4Input2	:	std_logic_vector(31 downto 0);
-	signal mux4Control	:	std_logic_vector(31 downto 0);
+	signal mux4Control	:	std_logic;
 
 	signal mux5Input1	:	std_logic_vector(31 downto 0);
 	signal mux5Input2	:	std_logic_vector(31 downto 0);
-	signal mux5Control	:	std_logic_vector(31 downto 0);
+	signal mux5Control	:	std_logic;
 
 	signal regDst	: 	std_logic;
 	signal jump		: 	std_logic;
@@ -130,6 +143,10 @@ architecture arch_processor_core of processor_core is
 	signal extaddr	:	std_logic_vector(31 downto 0);
 	signal extdin	:	std_logic_vector(31 downto 0);
 	signal extdout	:	std_logic_vector(31 downto 0);
+
+	signal temp1	:	std_logic_vector(31 downto 0);
+	signal temp2	:	std_logic_vector(31 downto 0);
+	signal temp3	:	std_logic_vector(31 downto 0);
 begin
 -- Processor Core Behaviour
 	regtableMapping : regtable PORT MAP
@@ -177,13 +194,24 @@ begin
 		regWrite =>	regWrite
 	);
 
+	aluControlMapping : aluCOntrol PORT MAP
+	(
+		func => inst(5 downto 0),
+		aluOp => aluOp,
+		aluControl => aluControlSignal
+	);
+
+	temp1 <= std_logic_vector(resize(signed(inst(20 downto 16)), 32));
+	temp2 <= std_logic_vector(resize(signed(inst(15 downto 11)), 32));
 	mux1Mapping : mux PORT MAP
 	(
-		input1 => inst(20 downto 16),
-		input2 => inst(15 downto 11),
+		input1 => temp1,
+		input2 => temp2,
 		selector => regDst,
-		output1 => mux1Output
+		output1 => temp3
 	);
+
+	mux1Output <= temp3(4 downto 0);
 
 	mux2Mapping : mux PORT MAP
 	(
@@ -205,7 +233,7 @@ begin
 	(
 		A	=> aluin1,
 		B	=> mux2Output,
-		op	=> aluControl,
+		op	=> aluControlSignal,
 		Result	=> aluResult,
 		ZERO	=> ZERO
 	);
@@ -226,22 +254,22 @@ begin
 		input1 => mux4Input1,
 		input2 => mux4Input2,
 		selector => mux4Control,
-		outpu1 => mux5Input1,
-	)
+		output1 => mux5Input1
+	);
 
-	mux5Input1 <= pcAdd4 + std_logic_vector(resize(shift_left(inst_signal(25 downto 0), 2), 32));
+	mux5Input1 <= pcAdd4 + std_logic_vector(resize(shift_left(signed(inst_signal(25 downto 0)), 2), 32));
 	mux5Mapping : mux PORT MAP
 	(
 		input1 => mux5Input1,
 		input2 => mux5Input2,
 		selector => jump,
-		output1 => pcNext,
-	)
+		output1 => pcNext
+	);
 
 
 ---------------------------------------- sign_extend ----------------------------------------
 
-  SignExtension <= "1111111111111111" & inst(15 downto 0) when inst(15)='1'
+  immeExt <= "1111111111111111" & inst(15 downto 0) when inst(15)='1'
 		 else "0000000000000000" & inst(15 downto 0);	 
 
 ---------------------------------------- sign_extend ----------------------------------------
