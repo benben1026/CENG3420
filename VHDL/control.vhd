@@ -19,14 +19,16 @@ entity control is
 end control;
 
 architecture arch_control of control is
-signal opcode : std_logic_vector (5 downto 0);
-signal funct : std_logic_vector (5 downto 0);
+--signal opcode : std_logic_vector (5 downto 0);
+--signal funct : std_logic_vector (5 downto 0);
 begin
-	process(clk)
+	process(inst)
+	variable opcode : std_logic_vector(5 downto 0);
+	variable funct : std_logic_vector(5 downto 0);
 	begin
-		if clk'event and clk='1' then
-			opcode <= inst(31 downto 26);
-			funct <= inst(5 downto 0);
+		--if clk'event and clk='1' then
+			opcode := inst(31 downto 26);
+			funct := inst(5 downto 0);
 			if opcode = "000000" then 
 				regdst <= '1';
 			else 
@@ -75,6 +77,6 @@ begin
 				regWrite <= '1';
 			end if;
 
-		end if;
+		--end if;
 	end process;
 end arch_control;

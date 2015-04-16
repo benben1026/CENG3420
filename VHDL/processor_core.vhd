@@ -135,44 +135,59 @@ architecture arch_processor_core of processor_core is
 	signal flag	:	std_logic := '1';
 begin
 -- Processor Core Behaviour
-	process(run)
-	begin
-		if run = '1' then
-			running <= '1';
-			--pc <= x"00004000";
-			--pcNext <= x"00004004";
-			--instaddr <= x"00004000";
-		end if;
-	end process;
+	--process(run, clk)
+	--begin
+	--	if clk'event and clk='1' then
+	--		if run = '1' then
+	--			running <= '1';
+	--			--pc <= x"00004000";
+	--			--pcNext <= x"00004004";
+	--			--instaddr <= x"00004000";
+	--		end if;
+	--	end if;
+	--end process;
 
-	process(clk)
+	process(clk, running, inst, pc, ZERO, pcNext, branch, flag)
 	begin
 		if clk'event and clk='1' then
+			if run = '1' then
+				running <= '1';
+				--pc <= x"00004000";
+				--pcNext <= x"00004004";
+				--instaddr <= x"00004000";
+			end if;
 			if running = '1' then
-				inst_signal <= inst;
-				fin <= '0';
-
-				pcAdd4 <= pc + x"4";
-				imme <= inst(15 downto 0);
-				immeExt <= std_logic_vector(resize(signed(imme), 32));
-
-
-				mux4Input1 <= pcAdd4;
-				mux4Input2 <= pcAdd4 + std_logic_vector(shift_left(signed(immeExt), 2));
-				mux4Control <= branch and ZERO;
+				--fin <= '0';
 				if flag = '1' then
 					pc <= x"00004000";
 					flag <= '0';
 				else
 					pc <= pcNext;
 				end if;
-			else
-				inst_signal <= "00000000000000000000000000000000";
-				fin <= '1';
+			end if;
+			if running = '1' and inst = x"00000000" then
+				--inst_signal <= "00000000000000000000000000000000";
+				--fin <= '1';
+				running <= '0';
 				flag <= '1';
 			end if;
 		end if;
 	end process;
+
+	--running <= '0' when inst = x"00000000" else '1';
+	fin <= '1' when running = '0' else '0';
+
+	inst_signal <= inst when running = '1' else x"00000000";
+	pcAdd4 <= pc + x"4";
+	imme <= inst(15 downto 0);
+	immeExt <= std_logic_vector(resize(signed(imme), 32));
+
+
+	mux4Input1 <= pcAdd4;
+	mux4Input2 <= pcAdd4 + std_logic_vector(shift_left(signed(immeExt), 2));
+	mux4Control <= branch and ZERO;
+	mux5Input2 <= (pcAdd4 and (x"ff000000")) or std_logic_vector(resize(shift_left(unsigned(inst(25 downto 0)), 2), 32));
+	instaddr <= pc;
 
 --data memory mapping--
 	memwen <= memWrite;
@@ -270,7 +285,6 @@ begin
 		output1 => mux5Input1
 	);
 
-	mux5Input2 <= pcAdd4 + std_logic_vector(resize(shift_left(signed(inst(25 downto 0)), 2), 32));
 	mux5Mapping : mux PORT MAP
 	(
 		input1 => mux5Input1,
