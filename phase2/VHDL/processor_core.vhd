@@ -94,10 +94,33 @@ architecture arch_processor_core of processor_core is
 	signal ID_EX_Read_2_Q: std_logic_vector(31 downto 0);
 	signal Forwarding_ControlA: std_logic_vector(1 downto 0);
 	signal Forwarding_ControlB: std_logic_vector(1 downto 0);
-	signal EX_MEM_Write_Q: std_logic_vector(31 downto 0);
-	signal MEM_WB_Write_Q: std_logic_vector(31 downto 0);
+
+	--IF/ID
+
+	--ID/EX
+
+	--EX/MEM
+	signal EX_MEM_WB_D: std_logic;
 	signal EX_MEM_WB_Q: std_logic;
+	signal EX_MEM_M_D: std_logic;
+	signal EX_MEM_M_Q: std_logic;
+	signal EX_MEM_ALU_D: std_logic;
+	signal EX_MEM_ALU_Q: std_logic;
+	signal EX_MEM_MWrite_D: std_logic_vector(31 downto 0);
+	signal EX_MEM_MWrite_Q: std_logic_vector(31 downto 0);
+	signal EX_MEM_RWrite_D: std_logic_vector(31 downto 0);
+	signal EX_MEM_RWrite_Q: std_logic_vector(31 downto 0);
+
+	--MEM/WB
+	signal MEM_WB_WB_D: std_logic;
 	signal MEM_WB_WB_Q: std_logic;
+	signal MEM_WB_MRead_D: std_logic_vector(31 downto 0);
+	signal MEM_WB_MRead_Q: std_logic_vector(31 downto 0);
+	signal MEM_WB_MWrite_D: std_logic_vector(31 downto 0);
+	signal MEM_WB_MWrite_Q: std_logic_vector(31 downto 0);
+	signal MEM_WB_RWrite_D: std_logic_vector(31 downto 0);
+	signal MEM_WB_RWrite_Q: std_logic_vector(31 downto 0);
+
 
 begin
 -- Processor Core Behaviour
@@ -262,11 +285,11 @@ begin
 
 
 ---------------------------------------- Forwarding Unit ------------------------------------
-	Forwarding_ControlA <= "10" when EX_MEM_WB_Q = 1 and ID_EX_Read_1_Q = EX_MEM_Write_Q else
-						"01" when MEM_WB_WB_Q = 1 and ID_EX_Read_1_Q = MEM_WB_Write_Q else
+	Forwarding_ControlA <= "10" when EX_MEM_WB_Q = 1 and ID_EX_Read_1_Q = EX_MEM_RWrite_Q else
+						"01" when MEM_WB_WB_Q = 1 and ID_EX_Read_1_Q = MEM_WB_RWrite_Q else
 						"00";
-	Forwarding_ControlB <= "10" when EX_MEM_WB_Q = 1 and ID_EX_Read_2_Q = EX_MEM_Write_Q else
-						"01" when MEM_WB_WB_Q = 1 and ID_EX_Read_2_Q = MEM_WB_Write_Q else
+	Forwarding_ControlB <= "10" when EX_MEM_WB_Q = 1 and ID_EX_Read_2_Q = EX_MEM_RWrite_Q else
+						"01" when MEM_WB_WB_Q = 1 and ID_EX_Read_2_Q = MEM_WB_RWrite_Q else
 						"00";
 ---------------------------------------- Forwarding Unit ------------------------------------
 
