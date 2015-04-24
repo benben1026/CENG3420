@@ -78,6 +78,16 @@ architecture arch_processor_core of processor_core is
 	signal aluMult, aluResult ,aluin1, aluin2, aluo1, aluo2 : STD_LOGIC_VECTOR(31 downto 0);		
 	signal ALUConOut: std_logic_vector (3 downto 0);
 
+
+	-- Signal: Hazard Detection Unit
+	signal Hazard_PCMux_Control: std_logic;
+	signal Hazard_IF_EX_Control: std_logic;
+	signal Hazard_StallMux_Control: std_logic;
+	-- ID_EX isolator
+	signal ID_EX_WriteAddr_Q: std_logic_vector(4 downto 0);
+
+	-- Taking input: MemRead, Register_Read_1, Register_Read_2, Register_Write
+
 begin
 -- Processor Core Behaviour
 
@@ -96,17 +106,17 @@ begin
 		extaddr => regaddr,
 		extdout => regdout
 	);
-  ---------------------------------------- Port Map ----------------------------------------
+ ---------------------------------------- Port Map ----------------------------------------
  ---------------------------------------- Start/Reset ----------------------------------------
 	process (clk, rst)
-	begin
+		begin
 
-    if (rst='1') then Startrunning <= '0';
-      elsif (clk'event and clk='1') then		    
-        if (run='1') then Startrunning <= '1';
-        end if;
-    end if;
- end process;
+	    if (rst='1') then Startrunning <= '0';
+	    	elsif (clk'event and clk='1') then		    
+	    		if (run='1') then Startrunning <= '1';
+	    	end if;
+	    end if;
+	end process;
   ---------------------------------------- Start/Reset ----------------------------------------
 
 
@@ -197,7 +207,7 @@ begin
 						    inst(31 downto 29)="001" else    --Operation end with 'i'
 			         	'0';
 				
-	  RType <= '1' when RegDst='1' and (
+	RType <= '1' when RegDst='1' and (
 					inst(5 downto 0) = "100000" or   --add
 					inst(5 downto 0) = "100010" or   --sub
 					inst(5 downto 0) = "100100" or   --and
@@ -236,18 +246,18 @@ begin
 	
 	
 	
-ALUConOut <="0110" when  (ALUOp = "0001" and inst(5 downto 0)="100000")  or ALUOp = "0010" else --add,addi
-          "0001" when  (ALUOp = "0001" and inst(5 downto 0)="100101")  or ALUOp = "0100" else --or ,ori 
-          "0000" when  (ALUOp = "0001" and inst(5 downto 0)="100100")  or ALUOp = "0011" else --and,andi
-          "1110" when  (ALUOp = "0001" and inst(5 downto 0)="100010")                    else --subt
-          "1111" when  (ALUOp = "0001" and inst(5 downto 0)="101010")                    else --slt
-          "0010" when  (ALUOp = "0001" and inst(5 downto 0)="101011")                    else --sltu
-          "0011" when   ALUOp = "0101"                                                   else --slti 
-          "0100" when   ALUOp = "0110"                                                   else --sltiu
-          "0101" when   ALUOp = "0111"                                                   else --lui
-          "0111" when   ALUOp = "1000"                                                   else --jump
-          "1000" when   ALUOp = "0000"                                                   else -- save , load
-          "1001";
+	ALUConOut <="0110" when  (ALUOp = "0001" and inst(5 downto 0)="100000")  or ALUOp = "0010" else --add,addi
+	          "0001" when  (ALUOp = "0001" and inst(5 downto 0)="100101")  or ALUOp = "0100" else --or ,ori 
+	          "0000" when  (ALUOp = "0001" and inst(5 downto 0)="100100")  or ALUOp = "0011" else --and,andi
+	          "1110" when  (ALUOp = "0001" and inst(5 downto 0)="100010")                    else --subt
+	          "1111" when  (ALUOp = "0001" and inst(5 downto 0)="101010")                    else --slt
+	          "0010" when  (ALUOp = "0001" and inst(5 downto 0)="101011")                    else --sltu
+	          "0011" when   ALUOp = "0101"                                                   else --slti 
+	          "0100" when   ALUOp = "0110"                                                   else --sltiu
+	          "0101" when   ALUOp = "0111"                                                   else --lui
+	          "0111" when   ALUOp = "1000"                                                   else --jump
+	          "1000" when   ALUOp = "0000"                                                   else -- save , load
+	          "1001";
           
 
 	Tem1  <=  aluin1 + aluin2        when ALUConOut = "0110" or ALUConOut = "1000"  else  --add 				
@@ -269,6 +279,25 @@ ALUConOut <="0110" when  (ALUOp = "0001" and inst(5 downto 0)="100000")  or ALUO
 
 	---------------------------------------- ALU Control ----------------------------------------
 
+
+
+
+	---------------------------------------- Hazard Detection Unit ----------------------------------------
+
+	Hazard_PCMux_Control <= '1' when inst(25 downto 21) = ID_EX_WriteAddr_Q and MemToReg = '1' 
+								or inst(20 downto 16) = ID_EX_WriteAddr_Q and MemToReg = '1'
+								else '0';
+	Hazard_IF_EX_Control <= '1' when inst(25 downto 21) = ID_EX_WriteAddr_Q and MemToReg = '1' 
+								or inst(20 downto 16) = ID_EX_WriteAddr_Q and MemToReg = '1'
+								else '0';
+	Hazard_StallMux_Control <= '1' when inst(25 downto 21) = ID_EX_WriteAddr_Q and MemToReg = '1' 
+								or inst(20 downto 16) = ID_EX_WriteAddr_Q and MemToReg = '1'
+								else '0';
+
+
+
+
+	---------------------------------------- Hazard Detection Unit ----------------------------------------
 
 
 
@@ -301,13 +330,13 @@ ALUConOut <="0110" when  (ALUOp = "0001" and inst(5 downto 0)="100000")  or ALUO
 		
 	
    ---------------------------------------- Value Writing ----------------------------------------
-	 	 aluo2  <= "000000000000000000000000" & aluBuffer when
-	                  inst(31 downto 26)="100100" or
-				           (inst(31 downto 26)="100000" and aluBuffer(7)='0') else
-				       "111111111111111111111111" & aluBuffer when 
-				            inst(31 downto 26)="100000" and aluBuffer(7)='1' else
-				            PcNext when Jal='1' 
-				            else aluo1;
+ 	aluo2  <= "000000000000000000000000" & aluBuffer when
+                  inst(31 downto 26)="100100" or
+			           (inst(31 downto 26)="100000" and aluBuffer(7)='0') else
+			       "111111111111111111111111" & aluBuffer when 
+			            inst(31 downto 26)="100000" and aluBuffer(7)='1' else
+			            PcNext when Jal='1' 
+			            else aluo1;
 	 
 	 aluBuffer <= aluo1(31 downto 24)  when aluin2(1 downto 0)="00" else
 	      		 	 aluo1(23 downto 16)  when aluin2(1 downto 0)="01" else
