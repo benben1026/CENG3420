@@ -89,6 +89,7 @@ architecture arch_processor_core of processor_core is
 	-- Taking input: MemRead, Register_Read_1, Register_Read_2, Register_Write
 
 
+	signal Reg_Write_Data: std_logic_vector(31 downto 0);
 	--Forwarding Unit
 	signal ID_EX_Read_1_Q: std_logic_vector(31 downto 0);
 	signal ID_EX_Read_2_Q: std_logic_vector(31 downto 0);
@@ -134,7 +135,7 @@ begin
 		raddrB  => inst(20 downto 16),
 		wen     => RegWrite,
 		waddr   => RegWriteAddr,
-		din	    => aluo2,
+		din	    => Reg_Write_Data,
 		doutA   => aluin1,
 		doutB   => aluMult,
 		extaddr => regaddr,
@@ -159,9 +160,27 @@ begin
 --ID/EX
 
 --EX/MEM
+	process (PCclk)
+	begin
+		if(PCclk'event and PCclk = '1') then
+			EX_MEM_WB_Q <= EX_MEM_WB_D;
+			EX_MEM_M_Q <= EX_MEM_M_D;
+			EX_MEM_ALU_Q <= EX_MEM_ALU_D;
+			EX_MEM_MWrite_Q <= EX_MEM_MWrite_D;
+			EX_MEM_RWrite_Q <= EX_MEM_RWrite_D;
+		end if;
+	end process;
 
 --MEM/WB
-
+	process (PCclk)
+	begin
+		if(PCclk'event and PCclk = '1') then 
+			MEM_WB_WB_Q <= MEM_WB_WB_D;
+			MEM_WB_MWrite_Q <= MEM_WB_MWrite_D;
+			MEM_WB_MRead_Q <= MEM_WB_MRead_D;
+			MEM_WB_RWrite_Q <= MEM_WB_RWrite_D;
+		end if;
+	end process;
 ------------------------------------------ Pipeline ------------------------------------------
 
   ---------------------------------------- PC Control ----------------------------------------
@@ -295,7 +314,14 @@ begin
 
 	---------------------------------------- ALU Control ----------------------------------------
 	
-	
+	aluin1 <= ID_EX_RegData1 when Forwarding_ControlA = "00" else
+		<=  when Forwarding_ControlA = "01" else
+		<= EX_MEM_ALU_Q;
+
+	EX_MEM_MWrite_D <= ID_EX_RegData1 when Forwarding_ControlB = "00" else
+		<=  Reg_Write_Data when Forwarding_ControlB = "01" else
+		<= EX_MEM_ALU_Q;
+	--aluin2 <= 
 	
 	ALUConOut <="0110" when  (ALUOp = "0001" and inst(5 downto 0)="100000")  or ALUOp = "0010" else --add,addi
 	          "0001" when  (ALUOp = "0001" and inst(5 downto 0)="100101")  or ALUOp = "0100" else --or ,ori 
@@ -355,25 +381,29 @@ begin
 
 
 	---------------------------------------- Memory & Data  ----------------------------------------
-	memaddr <= aluResult(31 downto 2) & "00";
+	memaddr <= EX_MEM_ALU_Q(31 downto 2) & "00";
+	memdw <= EX_MEM_MWrite_Q;
+	MEM_WB_MRead_D <= memdr;
+
+	--memaddr <= aluResult(31 downto 2) & "00";
 	
 	memwen <= MemWrite;
 	
-	memdw  <=aluo1(31 downto 8) & aluMult(7 downto 0) 
-			   when inst(31 downto 26)="101000" and aluResult(1 downto 0)="11" else
+	--memdw  <=aluo1(31 downto 8) & aluMult(7 downto 0) 
+	--		   when inst(31 downto 26)="101000" and aluResult(1 downto 0)="11" else
 			       
-	         aluMult(7 downto 0) & aluo1(23 downto 0) 
-	         when inst(31 downto 26)="101000" and aluResult(1 downto 0)="00" else
+	--         aluMult(7 downto 0) & aluo1(23 downto 0) 
+	--         when inst(31 downto 26)="101000" and aluResult(1 downto 0)="00" else
 	         			      
-			   aluo1(31 downto 16) & aluMult(7 downto 0) & aluo1(7 downto 0) 
-			   when inst(31 downto 26)="101000" AND aluResult(1 downto 0)="10" else
+	--		   aluo1(31 downto 16) & aluMult(7 downto 0) & aluo1(7 downto 0) 
+	--		   when inst(31 downto 26)="101000" AND aluResult(1 downto 0)="10" else
 			   
-			   aluo1(31 downto 24) & aluMult(7 downto 0) & aluo1(15 downto 0) 
-			   when inst(31 downto 26)="101000" and aluResult(1 downto 0)="01" else		   
+	--		   aluo1(31 downto 24) & aluMult(7 downto 0) & aluo1(15 downto 0) 
+	--		   when inst(31 downto 26)="101000" and aluResult(1 downto 0)="01" else		   
 			       
-			   aluMult;
+	--		   aluMult;
 	
-	aluo1  <= memdr when MemToReg='1' else aluResult;
+	--aluo1  <= memdr when MemToReg='1' else aluResult;
 	
 	
   ---------------------------------------- Memory & Data ----------------------------------------
