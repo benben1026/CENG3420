@@ -84,7 +84,7 @@ architecture arch_processor_core of processor_core is
 	signal Hazard_IF_EX_Control: std_logic;
 	signal Hazard_StallMux_Control: std_logic;
 	-- ID_EX isolator
-	signal ID_EX_WriteAddr_Q: std_logic_vector(4 downto 0);
+--	signal ID_EX_WriteAddr_Q: std_logic_vector(4 downto 0);
 
 	-- Taking input: MemRead, Register_Read_1, Register_Read_2, Register_Write
 
@@ -97,8 +97,39 @@ architecture arch_processor_core of processor_core is
 	signal Forwarding_ControlB: std_logic_vector(1 downto 0);
 
 	--IF/ID
+	signal IF_ID_PC_D: std_logic_vector(31 downto 0);
+	signal IF_ID_InstMem_D: std_logic_vector(31 downto 0);
+	signal IF_ID_PC_Q: std_logic_vector(31 downto 0);
+	signal IF_ID_Inst_Q: std_logic_vector(31 downto 0);
+	signal IF_ID_Hazard_Control: std_logic;
+	signal IF_ID_Branch_Control: std_logic;
+	signal IF_ID_Jump_Control: std_logic;
 
 	--ID/EX
+	signal ID_EX_WB_D: std_logic;
+	signal ID_EX_M_D: std_logic;
+	signal ID_EX_EX_D: std_logic;
+	signal ID_EX_Addr_D: std_logic;
+	signal ID_EX_funct_D: std_logic;
+	signal ID_EX_RegData1_D: std_logic_vector(31 downto 0);
+	signal ID_EX_RegData2_D: std_logic_vector(31 downto 0);
+	signal ID_EX_SignExt_D: std_logic_vector(31 downto 0);
+	signal ID_EX_RegRead1_D: std_logic_vector(4 downto 0);
+	signal ID_EX_RegRead2_D: std_logic_vector(4 downto 0);
+	signal ID_EX_WriteData_D: std_logic_vector(4 downto 0);
+	signal ID_EX_WB_Q: std_logic;
+	signal ID_EX_M_Q: std_logic;
+	signal ID_EX_EX_Q: std_logic;
+	signal ID_EX_Addr_Q: std_logic;
+	signal ID_EX_funct_Q: std_logic;
+	signal ID_EX_RegData1_Q: std_logic_vector(31 downto 0);
+	signal ID_EX_RegData2_Q: std_logic_vector(31 downto 0);
+	signal ID_EX_SignExt_Q: std_logic_vector(31 downto 0);
+	signal ID_EX_RegRead1_Q: std_logic_vector(4 downto 0);
+	signal ID_EX_RegRead2_Q: std_logic_vector(4 downto 0);
+	signal ID_EX_WriteData_Q: std_logic_vector(4 downto 0);
+	signal ID_EX_Branch_Control: std_logic;
+
 
 	--EX/MEM
 	signal EX_MEM_WB_D: std_logic;
@@ -109,8 +140,8 @@ architecture arch_processor_core of processor_core is
 	signal EX_MEM_ALU_Q: std_logic;
 	signal EX_MEM_MWrite_D: std_logic_vector(31 downto 0);
 	signal EX_MEM_MWrite_Q: std_logic_vector(31 downto 0);
-	signal EX_MEM_RWrite_D: std_logic_vector(31 downto 0);
-	signal EX_MEM_RWrite_Q: std_logic_vector(31 downto 0);
+	signal EX_MEM_RWrite_D: std_logic_vector(4 downto 0);
+	signal EX_MEM_RWrite_Q: std_logic_vector(4 downto 0);
 
 	--MEM/WB
 	signal MEM_WB_WB_D: std_logic;
@@ -119,8 +150,8 @@ architecture arch_processor_core of processor_core is
 	signal MEM_WB_MRead_Q: std_logic_vector(31 downto 0);
 	signal MEM_WB_MWrite_D: std_logic_vector(31 downto 0);
 	signal MEM_WB_MWrite_Q: std_logic_vector(31 downto 0);
-	signal MEM_WB_RWrite_D: std_logic_vector(31 downto 0);
-	signal MEM_WB_RWrite_Q: std_logic_vector(31 downto 0);
+	signal MEM_WB_RWrite_D: std_logic_vector(4 downto 0);
+	signal MEM_WB_RWrite_Q: std_logic_vector(4 downto 0);
 
 
 begin
@@ -156,8 +187,30 @@ begin
 
 ------------------------------------------ Pipeline ------------------------------------------
 --IF/ID
+--------------------------------------- update required ---------------------------------------
+	IF_ID_PC_D <= PcNext;
+	IF_ID_InstMem_D <= inst;
+	IF_ID_Hazard_Control <= Hazard_IF_EX_Control;
+	IF_ID_Jump_Control <= Jump;
+	IF_ID_Branch_Control <= '1' when ZERO = '1' and Branch = '1' else
+							'0';
+	process (PCclk)
+	begin
+		if (PCclk = '1' and PCclk'event) then
+			IF_ID_Inst_Q <= IF_ID_InstMem_D;
+			IF_ID_PC_Q <= IF_ID_PC_D;
+		end if;
+	end process;
+
 
 --ID/EX
+
+
+
+
+
+
+
 
 --EX/MEM
 	process (PCclk)
@@ -362,14 +415,14 @@ begin
 	---------------------------------------- Hazard Detection Unit ----------------------------------------
 
 	Hazard_PCMux_Control <= '1' when inst(25 downto 21) = ID_EX_WriteAddr_Q and MemToReg = '1' 
-								or inst(20 downto 16) = ID_EX_WriteAddr_Q and MemToReg = '1'
-								else '0';
+								or inst(20 downto 16) = ID_EX_WriteAddr_Q and MemToReg = '1' else
+							'0';
 	Hazard_IF_EX_Control <= '1' when inst(25 downto 21) = ID_EX_WriteAddr_Q and MemToReg = '1' 
-								or inst(20 downto 16) = ID_EX_WriteAddr_Q and MemToReg = '1'
-								else '0';
+								or inst(20 downto 16) = ID_EX_WriteAddr_Q and MemToReg = '1' else
+							'0';
 	Hazard_StallMux_Control <= '1' when inst(25 downto 21) = ID_EX_WriteAddr_Q and MemToReg = '1' 
-								or inst(20 downto 16) = ID_EX_WriteAddr_Q and MemToReg = '1'
-								else '0';
+									or inst(20 downto 16) = ID_EX_WriteAddr_Q and MemToReg = '1' else 
+								'0';
 
 
 
