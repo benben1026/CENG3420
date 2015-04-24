@@ -88,6 +88,17 @@ architecture arch_processor_core of processor_core is
 
 	-- Taking input: MemRead, Register_Read_1, Register_Read_2, Register_Write
 
+
+	--Forwarding Unit
+	signal ID_EX_Read_1_Q: std_logic_vector(31 downto 0);
+	signal ID_EX_Read_2_Q: std_logic_vector(31 downto 0);
+	signal Forwarding_ControlA: std_logic_vector(1 downto 0);
+	signal Forwarding_ControlB: std_logic_vector(1 downto 0);
+	signal EX_MEM_Write_Q: std_logic_vector(31 downto 0);
+	signal MEM_WB_Write_Q: std_logic_vector(31 downto 0);
+	signal EX_MEM_WB_Q: std_logic;
+	signal MEM_WB_WB_Q: std_logic;
+
 begin
 -- Processor Core Behaviour
 
@@ -119,6 +130,16 @@ begin
 	end process;
   ---------------------------------------- Start/Reset ----------------------------------------
 
+------------------------------------------ Pipeline ------------------------------------------
+--IF/ID
+
+--ID/EX
+
+--EX/MEM
+
+--MEM/WB
+
+------------------------------------------ Pipeline ------------------------------------------
 
   ---------------------------------------- PC Control ----------------------------------------
 	PCclk <= (clk) and (Startrunning) and (not Finishrunning);
@@ -240,7 +261,14 @@ begin
 ---------------------------------------- sign_extend ----------------------------------------
 
 
-
+---------------------------------------- Forwarding Unit ------------------------------------
+	Forwarding_ControlA <= "10" when EX_MEM_WB_Q = 1 and ID_EX_Read_1_Q = EX_MEM_Write_Q else
+						"01" when MEM_WB_WB_Q = 1 and ID_EX_Read_1_Q = MEM_WB_Write_Q else
+						"00";
+	Forwarding_ControlB <= "10" when EX_MEM_WB_Q = 1 and ID_EX_Read_2_Q = EX_MEM_Write_Q else
+						"01" when MEM_WB_WB_Q = 1 and ID_EX_Read_2_Q = MEM_WB_Write_Q else
+						"00";
+---------------------------------------- Forwarding Unit ------------------------------------
 
 	---------------------------------------- ALU Control ----------------------------------------
 	
