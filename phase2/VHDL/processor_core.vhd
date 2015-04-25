@@ -106,9 +106,21 @@ architecture arch_processor_core of processor_core is
 	signal IF_ID_Jump_Control: std_logic;
 
 	--ID/EX
-	signal ID_EX_WB_D: std_logic_vector(1 downto 0);
-	signal ID_EX_M_D: std_logic;
-	signal ID_EX_EX_D: std_logic;
+
+	-- MemReg, RegWrite
+	signal ID_EX_MemReg_D: std_logic;
+	signal ID_EX_RegWrite_D: std_logic;
+--	signal ID_EX_WB_D: std_logic_vector(1 downto 0);
+	-- MemRead, MemWrite
+	signal ID_EX_MemRead_D: std_logic;
+	signal ID_EX_MemWrite_D: std_logic;
+--	signal ID_EX_M_D: std_logic_vector(1 downto 0)
+	-- Branch, AluOp, AluSrc
+	signal ID_EX_Branch_D: std_logic;
+	signal ID_EX_AluOp_D: std_logic_vector(1 downto 0);
+	signal ID_EX_AluSrc_D: std_logic;
+
+	signal ID_EX_EX_D: std_logic_vector(3 downto 0);
 	signal ID_EX_Addr_D: std_logic;
 	signal ID_EX_funct_D: std_logic;
 	signal ID_EX_RegData1_D: std_logic_vector(31 downto 0);
@@ -117,9 +129,20 @@ architecture arch_processor_core of processor_core is
 	signal ID_EX_RegRead1_D: std_logic_vector(4 downto 0);
 	signal ID_EX_RegRead2_D: std_logic_vector(4 downto 0);
 	signal ID_EX_WriteData_D: std_logic_vector(4 downto 0);
-	signal ID_EX_WB_Q: std_logic_vector(1 downto 0);
-	signal ID_EX_M_Q: std_logic;
-	signal ID_EX_EX_Q: std_logic;
+	-- MemReg, RegWrite
+	signal ID_EX_MemReg_Q: std_logic;
+	signal ID_EX_RegWrite_Q: std_logic;
+--	signal ID_EX_WB_Q: std_logic_vector(1 downto 0);
+	-- MemRead, MemWrite
+	signal ID_EX_MemRead_Q: std_logic;
+	signal ID_EX_MemWrite_Q: std_logic;
+--	signal ID_EX_M_Q: std_logic_vector(1 downto 0);
+	-- Branch, AluOp, AluSrc
+	signal ID_EX_Branch_Q: std_logic;
+	signal ID_EX_AluOp_Q: std_logic_vector(1 downto 0);
+	signal ID_EX_AluSrc_Q: std_logic;
+--	signal ID_EX_EX_Q: std_logic_vector(3 downto 0);
+
 	signal ID_EX_Addr_Q: std_logic;
 	signal ID_EX_funct_Q: std_logic;
 	signal ID_EX_RegData1_Q: std_logic_vector(31 downto 0);
