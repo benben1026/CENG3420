@@ -117,8 +117,8 @@ architecture arch_processor_core of processor_core is
 --	signal ID_EX_M_D: std_logic_vector(1 downto 0)
 	-- Branch, AluOp, AluSrc
 	signal ID_EX_Branch_D: std_logic;
-	signal ID_EX_AluOp_D: std_logic_vector(1 downto 0);
-	signal ID_EX_AluSrc_D: std_logic;
+	signal ID_EX_AluOp_D: std_logic_vector(3 downto 0);
+	signal ID_EX_AluSrc_D: std_logic(1 downto 0);
 
 	signal ID_EX_EX_D: std_logic_vector(3 downto 0);
 	signal ID_EX_Addr_D: std_logic;
@@ -139,8 +139,8 @@ architecture arch_processor_core of processor_core is
 --	signal ID_EX_M_Q: std_logic_vector(1 downto 0);
 	-- Branch, AluOp, AluSrc
 	signal ID_EX_Branch_Q: std_logic;
-	signal ID_EX_AluOp_Q: std_logic_vector(1 downto 0);
-	signal ID_EX_AluSrc_Q: std_logic;
+	signal ID_EX_AluOp_Q: std_logic_vector(3 downto 0);
+	signal ID_EX_AluSrc_Q: std_logic(1 downto 0);
 --	signal ID_EX_EX_Q: std_logic_vector(3 downto 0);
 
 	signal ID_EX_Addr_Q: std_logic;
