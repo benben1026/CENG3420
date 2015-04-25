@@ -190,8 +190,8 @@ begin
 		wen     => MEM_WB_WB_Q,
 		waddr   => RegWriteAddr,
 		din	    => Reg_Write_Data,
-		doutA   => aluin1,
-		doutB   => aluMult,
+		doutA   => ID_EX_RegData1_D,
+		doutB   => ID_EX_RegData2_D,
 		extaddr => regaddr,
 		extdout => regdout
 	);
@@ -227,12 +227,27 @@ begin
 
 
 --ID/EX
-
-
-
-
-
-
+	process (PCclk)
+	begin
+		if(PCclk'event and PCclk = '1') then
+			ID_EX_MemRead_Q <= ID_EX_MemReg_D;
+			ID_EX_RegWrite_Q <= ID_EX_RegWrite_D;
+			ID_EX_MemRead_Q <= ID_EX_MemRead_D;
+			ID_EX_MemWrite_Q <= ID_EX_MemWrite_D;
+			ID_EX_Branch_Q <= ID_EX_Branch_D;
+			ID_EX_AluSrc_Q <= ID_EX_AluSrc_D;
+			ID_EX_AluOp_Q <= ID_EX_AluOp_D;
+			ID_EX_Addr_Q <= ID_EX_Addr_D;
+			ID_EX_funct_Q <= ID_EX_funct_D;
+			ID_EX_RegRead1_Q <= ID_EX_RegRead1_D;
+			ID_EX_RegRead2_Q <= ID_EX_RegRead2_D;
+			ID_EX_WriteData_Q <= ID_EX_WriteData_D;
+		end if;
+	end process;
+	EX_MEM_WB_D(0) <= ID_EX_MemReg_Q;
+	EX_MEM_WB_D(1) <= ID_EX_RegWrite_Q;
+	EX_MEM_M_D <= ID_EX_MemWrite_Q;
+	EX_MEM_RWrite_D = ID_EX_WriteData_Q;
 
 
 --EX/MEM
@@ -390,27 +405,27 @@ begin
 
 	---------------------------------------- ALU Control ----------------------------------------
 	
-	aluin1 <= ID_EX_RegData1 when Forwarding_ControlA = "00" else
-		<=  when Forwarding_ControlA = "01" else
+	aluin1 <= ID_EX_RegData1_Q when Forwarding_ControlA = "00" else
+		<=  Reg_Write_Data when Forwarding_ControlA = "01" else
 		<= EX_MEM_ALU_Q;
 
-	EX_MEM_MWrite_D <= ID_EX_RegData1 when Forwarding_ControlB = "00" else
+	EX_MEM_MWrite_D <= ID_EX_RegData1_Q when Forwarding_ControlB = "00" else
 		<=  Reg_Write_Data when Forwarding_ControlB = "01" else
 		<= EX_MEM_ALU_Q;
-	aluin2 <= EX_MEM_MWrite_D when ALUSrc = "00" else
-		<= SignExtension;
+	aluin2 <= EX_MEM_MWrite_D when ID_EX_AluSrc_Q = "00" else
+		<= ID_EX_SignExt_Q;
 	
-	ALUConOut <="0110" when  (ALUOp = "0001" and inst(5 downto 0)="100000")  or ALUOp = "0010" else --add,addi
-	          "0001" when  (ALUOp = "0001" and inst(5 downto 0)="100101")  or ALUOp = "0100" else --or ,ori 
-	          "0000" when  (ALUOp = "0001" and inst(5 downto 0)="100100")  or ALUOp = "0011" else --and,andi
-	          "1110" when  (ALUOp = "0001" and inst(5 downto 0)="100010")                    else --subt
-	          "1111" when  (ALUOp = "0001" and inst(5 downto 0)="101010")                    else --slt
-	          "0010" when  (ALUOp = "0001" and inst(5 downto 0)="101011")                    else --sltu
-	          "0011" when   ALUOp = "0101"                                                   else --slti 
-	          "0100" when   ALUOp = "0110"                                                   else --sltiu
-	          "0101" when   ALUOp = "0111"                                                   else --lui
-	          "0111" when   ALUOp = "1000"                                                   else --jump
-	          "1000" when   ALUOp = "0000"                                                   else -- save , load
+	ALUConOut <="0110" when  (ID_EX_AluOp_Q = "0001" and ID_EX_funct_Q ="100000")  or ID_EX_AluOp_Q = "0010" else --add,addi
+	          "0001" when  (ID_EX_AluOp_Q = "0001" and ID_EX_funct_Q ="100101")  or ID_EX_AluOp_Q = "0100" else --or ,ori 
+	          "0000" when  (ID_EX_AluOp_Q = "0001" and ID_EX_funct_Q ="100100")  or ID_EX_AluOp_Q = "0011" else --and,andi
+	          "1110" when  (ID_EX_AluOp_Q = "0001" and ID_EX_funct_Q ="100010")                    else --subt
+	          "1111" when  (ID_EX_AluOp_Q = "0001" and ID_EX_funct_Q ="101010")                    else --slt
+	          "0010" when  (ID_EX_AluOp_Q = "0001" and ID_EX_funct_Q ="101011")                    else --sltu
+	          "0011" when   ID_EX_AluOp_Q = "0101"                                                   else --slti 
+	          "0100" when   ID_EX_AluOp_Q = "0110"                                                   else --sltiu
+	          "0101" when   ID_EX_AluOp_Q = "0111"                                                   else --lui
+	          "0111" when   ID_EX_AluOp_Q = "1000"                                                   else --jump
+	          "1000" when   ID_EX_AluOp_Q = "0000"                                                   else -- save , load
 	          "1001";
           
 
@@ -459,7 +474,7 @@ begin
 
 	---------------------------------------- Memory & Data  ----------------------------------------
 	--register write back mux
-	Reg_Write_Data <= MEM_WB_MRead_Q when MEM_WB_WB_Q(0) = 0 else
+	Reg_Write_Data <= MEM_WB_MRead_Q when MEM_WB_WB_Q(0) = 1 else
 		<= MEM_WB_MAddr_Q;
 	--end
 
