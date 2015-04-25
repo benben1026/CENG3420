@@ -106,7 +106,7 @@ architecture arch_processor_core of processor_core is
 	signal IF_ID_Jump_Control: std_logic;
 
 	--ID/EX
-	signal ID_EX_WB_D: std_logic;
+	signal ID_EX_WB_D: std_logic_vector(1 downto 0);
 	signal ID_EX_M_D: std_logic;
 	signal ID_EX_EX_D: std_logic;
 	signal ID_EX_Addr_D: std_logic;
@@ -117,7 +117,7 @@ architecture arch_processor_core of processor_core is
 	signal ID_EX_RegRead1_D: std_logic_vector(4 downto 0);
 	signal ID_EX_RegRead2_D: std_logic_vector(4 downto 0);
 	signal ID_EX_WriteData_D: std_logic_vector(4 downto 0);
-	signal ID_EX_WB_Q: std_logic;
+	signal ID_EX_WB_Q: std_logic_vector(1 downto 0);
 	signal ID_EX_M_Q: std_logic;
 	signal ID_EX_EX_Q: std_logic;
 	signal ID_EX_Addr_Q: std_logic;
@@ -132,8 +132,8 @@ architecture arch_processor_core of processor_core is
 
 
 	--EX/MEM
-	signal EX_MEM_WB_D: std_logic;
-	signal EX_MEM_WB_Q: std_logic;
+	signal EX_MEM_WB_D: std_logic_vector(1 downto 0);
+	signal EX_MEM_WB_Q: std_logic_vector(1 downto 0);
 	signal EX_MEM_M_D: std_logic;
 	signal EX_MEM_M_Q: std_logic;
 	signal EX_MEM_ALU_D: std_logic;
@@ -144,12 +144,12 @@ architecture arch_processor_core of processor_core is
 	signal EX_MEM_RWrite_Q: std_logic_vector(4 downto 0);
 
 	--MEM/WB
-	signal MEM_WB_WB_D: std_logic;
-	signal MEM_WB_WB_Q: std_logic;
+	signal MEM_WB_WB_D: std_logic_vector(1 downto 0);
+	signal MEM_WB_WB_Q: std_logic_vector(1 downto 0);
 	signal MEM_WB_MRead_D: std_logic_vector(31 downto 0);
 	signal MEM_WB_MRead_Q: std_logic_vector(31 downto 0);
-	signal MEM_WB_MWrite_D: std_logic_vector(31 downto 0);
-	signal MEM_WB_MWrite_Q: std_logic_vector(31 downto 0);
+	signal MEM_WB_MAddr_D: std_logic_vector(31 downto 0);
+	signal MEM_WB_MAddr_Q: std_logic_vector(31 downto 0);
 	signal MEM_WB_RWrite_D: std_logic_vector(4 downto 0);
 	signal MEM_WB_RWrite_Q: std_logic_vector(4 downto 0);
 
@@ -164,7 +164,7 @@ begin
 		rst     => rst,
 		raddrA  => inst(25 downto 21),
 		raddrB  => inst(20 downto 16),
-		wen     => RegWrite,
+		wen     => MEM_WB_WB_Q,
 		waddr   => RegWriteAddr,
 		din	    => Reg_Write_Data,
 		doutA   => aluin1,
@@ -229,7 +229,7 @@ begin
 	begin
 		if(PCclk'event and PCclk = '1') then 
 			MEM_WB_WB_Q <= MEM_WB_WB_D;
-			MEM_WB_MWrite_Q <= MEM_WB_MWrite_D;
+			MEM_WB_MAddr_Q <= MEM_WB_MAddr_D;
 			MEM_WB_MRead_Q <= MEM_WB_MRead_D;
 			MEM_WB_RWrite_Q <= MEM_WB_RWrite_D;
 		end if;
@@ -357,11 +357,11 @@ begin
 
 
 ---------------------------------------- Forwarding Unit ------------------------------------
-	Forwarding_ControlA <= "10" when EX_MEM_WB_Q = 1 and ID_EX_Read_1_Q = EX_MEM_RWrite_Q else
-						"01" when MEM_WB_WB_Q = 1 and ID_EX_Read_1_Q = MEM_WB_RWrite_Q else
+	Forwarding_ControlA <= "10" when EX_MEM_WB_Q(1) = 1 and ID_EX_Read_1_Q = EX_MEM_RWrite_Q else
+						"01" when MEM_WB_WB_Q(1) = 1 and ID_EX_Read_1_Q = MEM_WB_RWrite_Q else
 						"00";
-	Forwarding_ControlB <= "10" when EX_MEM_WB_Q = 1 and ID_EX_Read_2_Q = EX_MEM_RWrite_Q else
-						"01" when MEM_WB_WB_Q = 1 and ID_EX_Read_2_Q = MEM_WB_RWrite_Q else
+	Forwarding_ControlB <= "10" when EX_MEM_WB_Q(1) = 1 and ID_EX_Read_2_Q = EX_MEM_RWrite_Q else
+						"01" when MEM_WB_WB_Q(1) = 1 and ID_EX_Read_2_Q = MEM_WB_RWrite_Q else
 						"00";
 ---------------------------------------- Forwarding Unit ------------------------------------
 
@@ -374,7 +374,8 @@ begin
 	EX_MEM_MWrite_D <= ID_EX_RegData1 when Forwarding_ControlB = "00" else
 		<=  Reg_Write_Data when Forwarding_ControlB = "01" else
 		<= EX_MEM_ALU_Q;
-	--aluin2 <= 
+	aluin2 <= EX_MEM_MWrite_D when ALUSrc = "00" else
+		<= SignExtension;
 	
 	ALUConOut <="0110" when  (ALUOp = "0001" and inst(5 downto 0)="100000")  or ALUOp = "0010" else --add,addi
 	          "0001" when  (ALUOp = "0001" and inst(5 downto 0)="100101")  or ALUOp = "0100" else --or ,ori 
@@ -434,13 +435,18 @@ begin
 
 
 	---------------------------------------- Memory & Data  ----------------------------------------
+	--register write back mux
+	Reg_Write_Data <= MEM_WB_MRead_Q when MEM_WB_WB_Q(0) = 0 else
+		<= MEM_WB_MAddr_Q;
+	--end
+
 	memaddr <= EX_MEM_ALU_Q(31 downto 2) & "00";
 	memdw <= EX_MEM_MWrite_Q;
 	MEM_WB_MRead_D <= memdr;
 
 	--memaddr <= aluResult(31 downto 2) & "00";
 	
-	memwen <= MemWrite;
+	memwen <= EX_MEM_M_Q;
 	
 	--memdw  <=aluo1(31 downto 8) & aluMult(7 downto 0) 
 	--		   when inst(31 downto 26)="101000" and aluResult(1 downto 0)="11" else
