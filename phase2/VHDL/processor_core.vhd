@@ -68,6 +68,7 @@ architecture arch_processor_core of processor_core is
 	signal PCAdd_Sft_Out: STD_LOGIC_VECTOR(31 downto 0);--brloc
 	signal PCfirstMuxOut: STD_LOGIC_VECTOR(31 downto 0);--PCSrc2
 	signal PCclk: STD_LOGIC;
+	signal PCpre: std_logic_vector(31 downto 0);
 	signal PC: STD_LOGIC_VECTOR(31 downto 0);
 
 	signal ZERO, Jal, BeforeZero: STD_LOGIC;
@@ -292,7 +293,7 @@ begin
 	end process;
 ------------------------------------------ Pipeline ------------------------------------------
 
-  ---------------------------------------- PC Control ----------------------------------------
+  ---------------------------------------- IF stage, PC Control ----------------------------------------
 	PCclk <= (clk) and (Startrunning) and (not Finishrunning);
 
 	process (rst,PCclk)
@@ -302,24 +303,25 @@ begin
 			PC <= BaseAddress; -- 0x00400000 is the base address
 	   	  elsif ( PCclk='1' and PCclk'event ) then
 		    PC <= PCfirstMuxOut;
+		    PCpre <= PC;
 		end if;
 	end process;
 
 	PCout  <= PC;
-	PcNext <= PC + Four when Hazard_PCMux_Control = '1' else
-						PC;
+	PcNext <= PC + Four;
 
 	PCAdd_Sft_Out <= PcNext + (SignExtension(29 downto 0) & "00");
 
-	PCfirstMuxOut <= PcNext                                         when PCSrc="00" else
-	               PCAdd_Sft_Out                                  when PCSrc = "01" else
-				        (PC(31 downto 28) & IF_ID_Inst_Q(25 downto 0 ) & "00")  when PCSrc = "10" else
-	               aluin1;
+	PCfirstMuxOut <= PCpre when Hazard_PCMux_Control = '1' else
+					PcNext when PCSrc="00" and Hazard_PCMux_Control = '0' else
+	            	PCAdd_Sft_Out when PCSrc = "01" and Hazard_PCMux_Control = '0' else
+			        (PC(31 downto 28) & IF_ID_Inst_Q(25 downto 0 ) & "00")  when PCSrc = "10" else
+	            	aluin1;
 	instaddr <= PC;
   ---------------------------------------- PC Control ----------------------------------------
 
 
----------------------------------------- Decode and set Hazard Stall ----------------------------------------
+---------------------------------------- ID stage, Decode and set Hazard Stall ----------------------------------------
 
 	RegDst <= '1' when IF_ID_Inst_Q(31 downto 26)="000000" and Hazard_StallMux_Control='0' else -- 1 means RType
 			  '0';
@@ -413,7 +415,7 @@ begin
 
 
 
----------------------------------------- Hazard Detection Unit ----------------------------------------
+---------------------------------------- Hazard Detection Unit, 1 for hazard ----------------------------------------
 
 	Hazard_PCMux_Control <= '1' when IF_ID_Inst_Q(25 downto 21) = ID_EX_WriteAddr_Q and ID_EX_MemRead_Q = '1'
 								or IF_ID_Inst_Q(20 downto 16) = ID_EX_WriteAddr_Q and ID_EX_MemRead_Q = '1' else
@@ -446,7 +448,7 @@ begin
 						"00";
 ---------------------------------------- Forwarding Unit ------------------------------------
 
-	---------------------------------------- ALU Control ----------------------------------------
+	---------------------------------------- EX stage, ALU Control ----------------------------------------
 
 	aluin1 <= ID_EX_RegData1_Q when Forwarding_ControlA = "00" else
 		<=  Reg_Write_Data when Forwarding_ControlA = "01" else
@@ -496,7 +498,7 @@ begin
 
 
 
-	---------------------------------------- Memory & Data  ----------------------------------------
+	---------------------------------------- MEM stage, Memory & Data  ----------------------------------------
 	--register write back mux
 	Reg_Write_Data <= MEM_WB_MRead_Q when MEM_WB_WB_Q(0) = 1 else
 		<= MEM_WB_MAddr_Q;
@@ -531,7 +533,9 @@ begin
 
 
 
-   ---------------------------------------- Value Writing ----------------------------------------
+   ---------------------------------------- WB stage, Value Writing ----------------------------------------
+
+   -------------------------------- WRONG SIGNAL HERE, UPDATE REQUIRED -------------------------------------
  	aluo2  <= "000000000000000000000000" & aluBuffer when
                   IF_ID_Inst_Q(31 downto 26)="100100" or
 			           (IF_ID_Inst_Q(31 downto 26)="100000" and aluBuffer(7)='0') else
