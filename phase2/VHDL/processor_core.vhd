@@ -234,7 +234,7 @@ begin
 --Register Data Hazard Handling
 	process( PCclk )
 		if(PCclk'event and PCclk = '1') then
-			Reg_Write_Enable = MEM_WB_WB_Q;
+			Reg_Write_Enable = MEM_WB_WB_Q(1);
 		elsif(PCclk'event and PCclk = '0') then
 			Reg_Write_Enable = '0';
 		end if;
