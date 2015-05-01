@@ -90,6 +90,7 @@ architecture arch_processor_core of processor_core is
 
 
 	signal Reg_Write_Data: std_logic_vector(31 downto 0);
+	signal Reg_Write_Enable: std_logic_vector(31 downto 0);
 	--Forwarding Unit
 	signal ID_EX_Read_1_Q: std_logic_vector(31 downto 0);
 	signal ID_EX_Read_2_Q: std_logic_vector(31 downto 0);
@@ -189,7 +190,7 @@ begin
 --		raddrB  => inst(20 downto 16),
 		raddrA  => IF_ID_Inst_Q(25 downto 21),
 		raddrB  => IF_ID_Inst_Q(20 downto 16),
-		wen     => MEM_WB_WB_Q,
+		wen     => Reg_Write_Enable,
 		waddr   => RegWriteAddr,
 		din	    => Reg_Write_Data,
 		doutA   => ID_EX_RegData1_D,
@@ -226,10 +227,18 @@ begin
 			IF_ID_PC_Q <= IF_ID_PC_D;
 			if (IF_ID_Hazard_Control = '1' or IF_ID_Jump_Control = '1' or IF_ID_Branch_Control = '1') then
 				IF_ID_Inst_Q(31 downto 26) = "000000";
-			end if
+			end if;
 		end if;
 	end process;
 
+--Register Data Hazard Handling
+	process( PCclk )
+		if(PCclk'event and PCclk = '1') then
+			Reg_Write_Enable = MEM_WB_WB_Q;
+		elsif(PCclk'event and PCclk = '0') then
+			Reg_Write_Enable = '0';
+		end if;
+	end process;
 
 --ID/EX
 	process (PCclk)
