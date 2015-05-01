@@ -47,7 +47,7 @@ begin
 			end if;
 		end if;
 	end process;
-	
+
 	process(addr, MT)
 		variable addri: integer;
 	begin
@@ -57,7 +57,7 @@ begin
 			dout <= MT(addri);
 		end if;
 	end process;
-	
+
 	process(instaddr, MT)
 		variable addri: integer;
 	begin

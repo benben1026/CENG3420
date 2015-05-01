@@ -68,7 +68,7 @@ begin
 			end if;
 		end if;
 	end process;
-	
+
 	process(raddrA, raddrB, extaddr, RT)
 		variable addrAi, addrBi, extaddri : integer;
 	begin

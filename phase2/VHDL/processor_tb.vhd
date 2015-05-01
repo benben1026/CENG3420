@@ -28,7 +28,7 @@ architecture arch_processor_tb of processor_tb is
 			regdout	:	out std_logic_vector(31 downto 0)
 		);
 	end component;
-	
+
 	signal clk		: std_logic;
 	signal rst		: std_logic;
 	signal run		: std_logic;
@@ -40,7 +40,7 @@ architecture arch_processor_tb of processor_tb is
 	signal PCout	: std_logic_vector(31 downto 0);
 	signal regaddr	: std_logic_vector(4 downto 0);
 	signal regdout	: std_logic_vector(31 downto 0);
-	
+
 	signal hexcode	: std_logic_vector(3 downto 0);
 	signal endaddr	: std_logic_vector(31 downto 0);
 	signal dout_buf	: std_logic_vector(31 downto 0);
@@ -59,7 +59,7 @@ begin
 		regaddr	=> regaddr,
 		regdout	=> regdout
 	);
-	
+
 	process
 	begin
 		clk <= '0';
@@ -67,7 +67,7 @@ begin
 		clk <= '1';
 		wait for 50 ns;
 	end process;
-	
+
 	process
 		procedure hex2stdvec(signal dcode : out std_logic_vector(3 downto 0);
 			variable c : in character;
@@ -205,11 +205,11 @@ begin
 		dout_buf <= (others => '0');
 		wait for 130 ns;
 		rst <= '0';
-		
+
 		write(message, string'("Loading Program into Memory"));
 		writeline(output, message);
 		writeline(output, message);
-		
+
 		while (not endfile(ifile)) loop
 			readline(ifile, l);
 			wen <= '0';
@@ -218,7 +218,7 @@ begin
 			wait for 8 ns;
 			for i in 0 to 7 loop
 				read(l, c, good);
-				
+
 				if good = true then	
 					hex2stdvec(hexcode, c, good);
 					wait for 1 ns;
@@ -261,9 +261,9 @@ begin
 
 			else
 				correct := false;
-			end if;						
+			end if;
 			wait for 60 ns;
-			
+
 			if correct = true then
 				wen <= '1';
 				wait for 100 ns;
@@ -271,7 +271,7 @@ begin
 		end loop;
 		wen <= '0';
 		wait for 100 ns;
-		
+
 		run <= '1';
 		wait for 100 ns;
 		run <= '0';
@@ -279,15 +279,15 @@ begin
 		while not(fin = '1') loop
 			wait for 100 ns;
 		end loop;
-		
+
 		write(message, string'("Saving Memory Content"));
 		writeline(output, message);
 		writeline(output, message);
-		
+
 		l := null;
 		write(l, string'("Memory Value"));
 		writeline(rfile, l);
-		
+
 		while not(endfile(afile)) loop
 			readline(afile, l);
 			addr <= "00000000000000000000000000000000";
@@ -306,7 +306,7 @@ begin
 				end if;
 			end loop;
 			read(l, c, good);
-			
+
 			endaddr <= "00000000000000000000000000000000";
 			wait for 4 ns;
 			for i in 0 to 7 loop
@@ -324,9 +324,9 @@ begin
 			end loop;
 			endaddr <= endaddr + 4;
 			wait for 60 ns;
-			
+
 			while not(addr = endaddr) loop
-		
+
 				l := null;
 				dout_buf <= dout;
 				wait for 2 ns;
@@ -336,8 +336,8 @@ begin
 					dout_buf <= dout_buf(27 downto 0) & "0000";
 					wait for 1 ns;
 				end loop;
-				
-				c := HT;				
+
+				c := HT;
 				write(l, c);
 				dout_buf <= addr;
 				wait for 2 ns;
@@ -348,7 +348,7 @@ begin
 					wait for 1 ns;
 				end loop;
 				writeline(rfile, l);
-				
+
 				addr <= addr + 4;
 				wait for 80 ns;
 			end loop;
@@ -357,14 +357,14 @@ begin
 		write(message, string'("Saving Register Content"));
 		writeline(output, message);
 		writeline(output, message);
-				
+
 		l := null;
 		writeline(rfile, l);
-		
+
 		l := null;
 		write(l, string'("Register Value"));
 		writeline(rfile, l);
-		
+
 		regaddr <= "00000";
 		count := 0;
 		wait for 90 ns;
@@ -378,12 +378,12 @@ begin
 				dout_buf <= dout_buf(27 downto 0) & "0000";
 				wait for 1 ns;
 			end loop;
-			
-			c := HT;				
+
+			c := HT;
 			write(l, c);
 			write(l, count);
 			writeline(rfile, l);
-			
+
 			regaddr <= regaddr + 1;
 			count := count + 1;
 			wait for 90 ns;
@@ -407,12 +407,10 @@ begin
 		write(message, string'("Writing Result Complete"));
 		writeline(output, message);
 		writeline(output, message);
-		
+
 		while fin = '1' loop
 			wait for 100 ns;
 		end loop;
 	end process;
 end arch_processor_tb;
-			
-					
-				
+

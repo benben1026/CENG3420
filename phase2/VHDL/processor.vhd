@@ -17,7 +17,7 @@ entity processor is
 		regdout	:	out std_logic_vector(31 downto 0)
 	);
 end processor;
-		
+
 architecture arch_processor of processor is
 	component memtable
 		port (
@@ -52,7 +52,7 @@ architecture arch_processor of processor is
 			regdout	:	out std_logic_vector(31 downto 0)
 		);
 	end component;
-	
+
 	signal instaddr	: std_logic_vector(31 downto 0);
 	signal inst		: std_logic_vector(31 downto 0);
 	signal memwen	: std_logic;
@@ -75,7 +75,7 @@ begin
 		extdin		=> din,
 		extdout		=> dout
 	);
-	
+
 	PCORE: processor_core
 	port map (
 		clk			=> clk,
