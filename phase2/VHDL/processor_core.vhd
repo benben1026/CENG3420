@@ -240,6 +240,10 @@ begin
 		end if;
 	end process;
 
+	ID_EX_WriteData_D <= IF_ID_Inst_Q(20 downto 16) when RegDst = '0' else
+		<= IF_ID_Inst_Q(15 downto 11);
+
+	ID_EX_Addr_D <= IF_ID_PC_D + std_logic_vector(resize(shift_left(signed(ID_EX_SignExt_D), 2), 32));
 --ID/EX
 	process (PCclk)
 	begin
@@ -398,7 +402,7 @@ begin
 				       '0';
 
 	aluin2 <= aluMult when ALUSrc="00" else
-			SignExtension    when ALUSrc="01" else
+			ID_EX_SignExt_Q    when ALUSrc="01" else
 			"0000000000000000" & IF_ID_Inst_Q(15 downto 0);
 
 	Jal <= '1' when IF_ID_Inst_Q(31 downto 26)="000011" else
@@ -427,7 +431,7 @@ begin
 
 ---------------------------------------- sign_extend ----------------------------------------
 
-	SignExtension <= "1111111111111111" & IF_ID_Inst_Q(15 downto 0) when IF_ID_Inst_Q(15)='1'
+	ID_EX_SignExt_D <= "1111111111111111" & IF_ID_Inst_Q(15 downto 0) when IF_ID_Inst_Q(15)='1'
 						else "0000000000000000" & IF_ID_Inst_Q(15 downto 0);
 
 ---------------------------------------- sign_extend ----------------------------------------
