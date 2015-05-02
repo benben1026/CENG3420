@@ -1,6 +1,7 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.std_logic_unsigned.all;
+use ieee.numeric_std.all;
 
 entity processor_core is
 	port (
@@ -91,10 +92,10 @@ architecture arch_processor_core of processor_core is
 
 
 	signal Reg_Write_Data: std_logic_vector(31 downto 0);
-	signal Reg_Write_Enable: std_logic_vector(31 downto 0);
+	signal Reg_Write_Enable: std_logic;
 	--Forwarding Unit
-	signal ID_EX_Read_1_Q: std_logic_vector(31 downto 0);
-	signal ID_EX_Read_2_Q: std_logic_vector(31 downto 0);
+	--signal ID_EX_Read_1_Q: std_logic_vector(31 downto 0);
+	--signal ID_EX_Read_2_Q: std_logic_vector(31 downto 0);
 	signal Forwarding_ControlA: std_logic_vector(1 downto 0);
 	signal Forwarding_ControlB: std_logic_vector(1 downto 0);
 
@@ -120,11 +121,11 @@ architecture arch_processor_core of processor_core is
 	-- Branch, AluOp, AluSrc
 	signal ID_EX_Branch_D: std_logic;
 	signal ID_EX_AluOp_D: std_logic_vector(3 downto 0);
-	signal ID_EX_AluSrc_D: std_logic(1 downto 0);
+	signal ID_EX_AluSrc_D: std_logic_vector(1 downto 0);
 
 	signal ID_EX_EX_D: std_logic_vector(3 downto 0);
-	signal ID_EX_Addr_D: std_logic;
-	signal ID_EX_funct_D: std_logic;
+	signal ID_EX_Addr_D: std_logic_vector(31 downto 0);
+	signal ID_EX_funct_D: std_logic_vector(5 downto 0);
 	signal ID_EX_RegData1_D: std_logic_vector(31 downto 0);
 	signal ID_EX_RegData2_D: std_logic_vector(31 downto 0);
 	signal ID_EX_SignExt_D: std_logic_vector(31 downto 0);
@@ -142,11 +143,11 @@ architecture arch_processor_core of processor_core is
 	-- Branch, AluOp, AluSrc
 	signal ID_EX_Branch_Q: std_logic;
 	signal ID_EX_AluOp_Q: std_logic_vector(3 downto 0);
-	signal ID_EX_AluSrc_Q: std_logic(1 downto 0);
+	signal ID_EX_AluSrc_Q: std_logic_vector(1 downto 0);
 --	signal ID_EX_EX_Q: std_logic_vector(3 downto 0);
 
-	signal ID_EX_Addr_Q: std_logic;
-	signal ID_EX_funct_Q: std_logic;
+	signal ID_EX_Addr_Q: std_logic_vector(31 downto 0);
+	signal ID_EX_funct_Q: std_logic_vector(5 downto 0);
 	signal ID_EX_RegData1_Q: std_logic_vector(31 downto 0);
 	signal ID_EX_RegData2_Q: std_logic_vector(31 downto 0);
 	signal ID_EX_SignExt_Q: std_logic_vector(31 downto 0);
@@ -161,8 +162,8 @@ architecture arch_processor_core of processor_core is
 	signal EX_MEM_WB_Q: std_logic_vector(1 downto 0);
 	signal EX_MEM_M_D: std_logic;
 	signal EX_MEM_M_Q: std_logic;
-	signal EX_MEM_ALU_D: std_logic;
-	signal EX_MEM_ALU_Q: std_logic;
+	signal EX_MEM_ALU_D: std_logic_vector(31 downto 0);
+	signal EX_MEM_ALU_Q: std_logic_vector(31 downto 0);
 	signal EX_MEM_MWrite_D: std_logic_vector(31 downto 0);
 	signal EX_MEM_MWrite_Q: std_logic_vector(31 downto 0);
 	signal EX_MEM_RWrite_D: std_logic_vector(4 downto 0);
@@ -227,24 +228,25 @@ begin
 			IF_ID_Inst_Q <= IF_ID_InstMem_D;
 			IF_ID_PC_Q <= IF_ID_PC_D;
 			if (IF_ID_Hazard_Control = '1' or IF_ID_Jump_Control = '1' or IF_ID_Branch_Control = '1') then
-				IF_ID_Inst_Q(31 downto 26) = "000000";
+				IF_ID_Inst_Q(31 downto 26) <= "000000";
 			end if;
 		end if;
 	end process;
 
 --Register Data Hazard Handling
 	process( PCclk )
+	begin
 		if(PCclk'event and PCclk = '1') then
-			Reg_Write_Enable = MEM_WB_WB_Q(1);
+			Reg_Write_Enable <= MEM_WB_WB_Q(1);
 		elsif(PCclk'event and PCclk = '0') then
-			Reg_Write_Enable = '0';
+			Reg_Write_Enable <= '0';
 		end if;
 	end process;
 
 	ID_EX_WriteData_D <= IF_ID_Inst_Q(20 downto 16) when RegDst = '0' else
-		<= IF_ID_Inst_Q(15 downto 11);
+		IF_ID_Inst_Q(15 downto 11);
 
-	ID_EX_Addr_D <= IF_ID_PC_D + std_logic_vector(resize(shift_left(signed(ID_EX_SignExt_D), 2), 32));
+	ID_EX_Addr_D <= std_logic_vector(unsigned(IF_ID_PC_D) + unsigned(resize(shift_left(unsigned(ID_EX_SignExt_D), 2), 32)));
 --ID/EX
 	process (PCclk)
 	begin
@@ -266,7 +268,7 @@ begin
 	EX_MEM_WB_D(0) <= ID_EX_MemReg_Q;
 	EX_MEM_WB_D(1) <= ID_EX_RegWrite_Q;
 	EX_MEM_M_D <= ID_EX_MemWrite_Q;
-	EX_MEM_RWrite_D = ID_EX_WriteData_Q;
+	EX_MEM_RWrite_D <= ID_EX_WriteData_Q;
 
 
 --EX/MEM
@@ -417,14 +419,14 @@ begin
 
 ---------------------------------------- Hazard Detection Unit, 1 for hazard ----------------------------------------
 
-	Hazard_PCMux_Control <= '1' when IF_ID_Inst_Q(25 downto 21) = ID_EX_WriteAddr_Q and ID_EX_MemRead_Q = '1'
-								or IF_ID_Inst_Q(20 downto 16) = ID_EX_WriteAddr_Q and ID_EX_MemRead_Q = '1' else
+	Hazard_PCMux_Control <= '1' when (IF_ID_Inst_Q(25 downto 21) = ID_EX_WriteData_Q and ID_EX_MemRead_Q = '1')
+								or (IF_ID_Inst_Q(20 downto 16) = ID_EX_WriteData_Q and ID_EX_MemRead_Q = '1') else
 							'0';
-	Hazard_IF_EX_Control <= '1' when IF_ID_Inst_Q(25 downto 21) = ID_EX_WriteAddr_Q and ID_EX_MemRead_Q = '1'
-								or IF_ID_Inst_Q(20 downto 16) = ID_EX_WriteAddr_Q and ID_EX_MemRead_Q = '1' else
+	Hazard_IF_EX_Control <= '1' when (IF_ID_Inst_Q(25 downto 21) = ID_EX_WriteData_Q and ID_EX_MemRead_Q = '1')
+								or (IF_ID_Inst_Q(20 downto 16) = ID_EX_WriteData_Q and ID_EX_MemRead_Q = '1') else
 							'0';
-	Hazard_StallMux_Control <= '1' when IF_ID_Inst_Q(25 downto 21) = ID_EX_WriteAddr_Q and ID_EX_MemRead_Q = '1'
-									or IF_ID_Inst_Q(20 downto 16) = ID_EX_WriteAddr_Q and ID_EX_MemRead_Q = '1' else
+	Hazard_StallMux_Control <= '1' when (IF_ID_Inst_Q(25 downto 21) = ID_EX_WriteData_Q and ID_EX_MemRead_Q = '1')
+									or (IF_ID_Inst_Q(20 downto 16) = ID_EX_WriteData_Q and ID_EX_MemRead_Q = '1') else
 								'0';
 
 ---------------------------------------- Hazard Detection Unit ----------------------------------------
@@ -440,29 +442,29 @@ begin
 
 
 ---------------------------------------- Forwarding Unit ------------------------------------
-	Forwarding_ControlA <= "10" when EX_MEM_WB_Q(1) = 1 and ID_EX_Read_1_Q = EX_MEM_RWrite_Q else
-						"01" when MEM_WB_WB_Q(1) = 1 and ID_EX_Read_1_Q = MEM_WB_RWrite_Q else
+	Forwarding_ControlA <= "10" when EX_MEM_WB_Q(1) = '1' and ID_EX_RegData1_Q = EX_MEM_RWrite_Q else
+						"01" when MEM_WB_WB_Q(1) = '1' and ID_EX_RegData1_Q = MEM_WB_RWrite_Q else
 						"00";
-	Forwarding_ControlB <= "10" when EX_MEM_WB_Q(1) = 1 and ID_EX_Read_2_Q = EX_MEM_RWrite_Q else
-						"01" when MEM_WB_WB_Q(1) = 1 and ID_EX_Read_2_Q = MEM_WB_RWrite_Q else
+	Forwarding_ControlB <= "10" when EX_MEM_WB_Q(1) = '1' and ID_EX_RegData2_Q = EX_MEM_RWrite_Q else
+						"01" when MEM_WB_WB_Q(1) = '1' and ID_EX_RegData2_Q = MEM_WB_RWrite_Q else
 						"00";
 ---------------------------------------- Forwarding Unit ------------------------------------
 
 	---------------------------------------- EX stage, ALU Control ----------------------------------------
 
 	aluin1 <= ID_EX_RegData1_Q when Forwarding_ControlA = "00" else
-		<=  Reg_Write_Data when Forwarding_ControlA = "01" else
-		<= EX_MEM_ALU_Q;
+		Reg_Write_Data when Forwarding_ControlA = "01" else
+		EX_MEM_ALU_Q;
 
 	EX_MEM_MWrite_D <= ID_EX_RegData1_Q when Forwarding_ControlB = "00" else
-		<=  Reg_Write_Data when Forwarding_ControlB = "01" else
-		<= EX_MEM_ALU_Q;
+		Reg_Write_Data when Forwarding_ControlB = "01" else
+		EX_MEM_ALU_Q;
 	aluin2 <= EX_MEM_MWrite_D when ID_EX_AluSrc_Q = "00" else
-		<= ID_EX_SignExt_Q;
+		ID_EX_SignExt_Q;
 
-	ALUConOut <="0110" when  (ID_EX_AluOp_Q = "0001" and ID_EX_funct_Q ="100000")  or ID_EX_AluOp_Q = "0010" else --add,addi
-	          "0001" when  (ID_EX_AluOp_Q = "0001" and ID_EX_funct_Q ="100101")  or ID_EX_AluOp_Q = "0100" else --or ,ori
-	          "0000" when  (ID_EX_AluOp_Q = "0001" and ID_EX_funct_Q ="100100")  or ID_EX_AluOp_Q = "0011" else --and,andi
+	ALUConOut <="0110" when  (ID_EX_AluOp_Q = "0001" and ID_EX_funct_Q ="100000")  or (ID_EX_AluOp_Q = "0010") else --add,addi
+	          "0001" when  (ID_EX_AluOp_Q = "0001" and ID_EX_funct_Q ="100101")  or (ID_EX_AluOp_Q = "0100") else --or ,ori
+	          "0000" when  (ID_EX_AluOp_Q = "0001" and ID_EX_funct_Q ="100100")  or (ID_EX_AluOp_Q = "0011") else --and,andi
 	          "1110" when  (ID_EX_AluOp_Q = "0001" and ID_EX_funct_Q ="100010")                    else --subt
 	          "1111" when  (ID_EX_AluOp_Q = "0001" and ID_EX_funct_Q ="101010")                    else --slt
 	          "0010" when  (ID_EX_AluOp_Q = "0001" and ID_EX_funct_Q ="101011")                    else --sltu
@@ -500,8 +502,8 @@ begin
 
 	---------------------------------------- MEM stage, Memory & Data  ----------------------------------------
 	--register write back mux
-	Reg_Write_Data <= MEM_WB_MRead_Q when MEM_WB_WB_Q(0) = 1 else
-		<= MEM_WB_MAddr_Q;
+	Reg_Write_Data <= MEM_WB_MRead_Q when MEM_WB_WB_Q(0) = '1' else
+		MEM_WB_MAddr_Q;
 	--end
 
 	memaddr <= EX_MEM_ALU_Q(31 downto 2) & "00";
