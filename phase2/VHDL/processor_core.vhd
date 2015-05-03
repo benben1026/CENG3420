@@ -224,7 +224,7 @@ begin
 	IF_ID_InstMem_D <= inst;
 	IF_ID_Hazard_Control <= Hazard_IF_EX_Control;
 	IF_ID_Jump_Control <= Jump;
-	IF_ID_Branch_Control <= '1' when ZERO = '1' and Branch = '1' else
+	IF_ID_Branch_Control <= '1' when ZERO = '1' and ID_EX_Branch_Q = '1' else
 							'0';
 	process (PCclk)
 	begin
@@ -340,17 +340,17 @@ begin
 			  '1' when (RegDst='1' and (IF_ID_Inst_Q(5 downto 0) = "001000")) and Hazard_StallMux_Control='0' else   --JR
 			  '0';
 
-	Branch <= '1' when IF_ID_Inst_Q(31 downto 26)="000100" and Hazard_StallMux_Control='0' else   --beq
+	ID_EX_Branch_D <= '1' when IF_ID_Inst_Q(31 downto 26)="000100" and Hazard_StallMux_Control='0' else   --beq
 	          '1' when IF_ID_Inst_Q(31 downto 26)="000101" and Hazard_StallMux_Control='0' else  --bne
 			  '0';
 
-	MemToReg <= '1' when IF_ID_Inst_Q(31 downto 26)="101000" and Hazard_StallMux_Control='0' else --SB
-	            '1' when IF_ID_Inst_Q(31 downto 26)="100011" and Hazard_StallMux_Control='0' else  --lw
-			    '1' when IF_ID_Inst_Q(31 downto 26)="100000" and Hazard_StallMux_Control='0' else  --lb
-			    '1' when IF_ID_Inst_Q(31 downto 26)="100100" and Hazard_StallMux_Control='0' else  --lbu
-				'0';
+	ID_EX_WB_D(0) <= "1" when IF_ID_Inst_Q(31 downto 26)="101000" and Hazard_StallMux_Control='0' else --SB
+	            "1" when IF_ID_Inst_Q(31 downto 26)="100011" and Hazard_StallMux_Control='0' else  --lw
+			    "1" when IF_ID_Inst_Q(31 downto 26)="100000" and Hazard_StallMux_Control='0' else  --lb
+			    "1" when IF_ID_Inst_Q(31 downto 26)="100100" and Hazard_StallMux_Control='0' else  --lbu
+				"0";
 
-	ALUOp  <= "0000" when IF_ID_Inst_Q(31 downto 30)="10" and Hazard_StallMux_Control='0'		else  --save, load
+	ID_EX_AluOp_D  <= "0000" when IF_ID_Inst_Q(31 downto 30)="10" and Hazard_StallMux_Control='0'		else  --save, load
         		"0001" when RType='1' and Hazard_StallMux_Control='0'                 	else  -- R-type
           		"0010" when IF_ID_Inst_Q(31 downto 26)="001000" and Hazard_StallMux_Control='0' else  --addi
 	      		"0011" when IF_ID_Inst_Q(31 downto 26)="001100" and Hazard_StallMux_Control='0'	else  --andi
@@ -361,13 +361,13 @@ begin
 	      		"1000" when Jump='1' and Hazard_StallMux_Control='0'                    else  --Jump
           		"1001";
 
-	MemWrite <= '1' when IF_ID_Inst_Q(31 downto 26)="101000" and Hazard_StallMux_Control='0' else --sb
+	ID_EX_M_D <= '1' when IF_ID_Inst_Q(31 downto 26)="101000" and Hazard_StallMux_Control='0' else --sb
 				'1' when IF_ID_Inst_Q(31 downto 26)="101011" and Hazard_StallMux_Control='0' else    --sw
 			    '0';
 
 
-	ALUSrc <= "00" when Hazard_StallMux_Control = '1' else
-				"00" when RType='1' or Branch='1' or
+	ID_EX_AluSrc_D <= "00" when Hazard_StallMux_Control = '1' else
+				"00" when RType='1' or ID_EX_Branch_D='1' or
 		  		(RegDst='1' and	IF_ID_Inst_Q(5 downto 0)="001000") else  --beq, bne, RType, jr
 			    "01" when IF_ID_Inst_Q(31 downto 26)="001000" or   --addi
 					        IF_ID_Inst_Q(31 downto 26)="001010" or   --slti
@@ -384,7 +384,7 @@ begin
 
 
 
-    RegWrite <= '0' when Hazard_StallMux_Control = '1' else
+    ID_EX_WB_D(1) <= '0' when Hazard_StallMux_Control = '1' else
     			'1' when RType='1' or
 						    IF_ID_Inst_Q(31 downto 26)="100011" or  --lw
 						    IF_ID_Inst_Q(31 downto 26)="100000" or  --lb
@@ -408,12 +408,12 @@ begin
 			 '0';
 
 	PCSrc(1)  <= Jump;
-	PCSrc(0)  <= '1' when Jump='0' and Branch='1' and ZERO='1' else
+	PCSrc(0)  <= '1' when Jump='0' and ID_EX_Branch_D='1' and ZERO='1' else
 				       '1' when Jump='1' and IF_ID_Inst_Q(31 downto 26)="000000"  else
 				       '0';
 
-	aluin2 <= aluMult when ALUSrc="00" else
-			ID_EX_SignExt_Q    when ALUSrc="01" else
+	aluin2 <= aluMult when ID_EX_AluSrc_Q="00" else
+			ID_EX_SignExt_Q    when ID_EX_AluSrc_Q="01" else
 			"0000000000000000" & IF_ID_Inst_Q(15 downto 0);
 
 	Jal <= '1' when IF_ID_Inst_Q(31 downto 26)="000011" else
@@ -544,7 +544,7 @@ begin
 
 --			   aluMult;
 
-	aluo1  <= memdr when MemToReg='1' else aluResult;
+	aluo1  <= memdr when ID_EX_WB_Q(0)='1' else aluResult;
 	EX_MEM_RWrite_D <= "11111"         when Jal='1' else
 						ID_EX_WriteData_D;
 
@@ -587,7 +587,7 @@ begin
 
 	---------------------------------------- Finish ----------------------------------------
 	STATE <= '1' when (IF_ID_Inst_Q(31 downto 30) & IF_ID_Inst_Q(28 downto 26)="10011" and not aluResult(1 downto 0)="00")
-	                  or (ALUSrc="11" or not PCfirstMuxOut(1 downto 0)="00")
+	                  or (ID_EX_AluSrc_D="11" or not PCfirstMuxOut(1 downto 0)="00")
 	             else '0';
 	process (clk, run)
 	begin
