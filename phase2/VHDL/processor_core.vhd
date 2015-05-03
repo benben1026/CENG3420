@@ -159,6 +159,7 @@ architecture arch_processor_core of processor_core is
 	signal ID_EX_Branch_Control: std_logic;
 
 
+
 	--EX/MEM
 	signal EX_MEM_WB_D: std_logic_vector(1 downto 0);
 	signal EX_MEM_WB_Q: std_logic_vector(1 downto 0);
@@ -366,7 +367,7 @@ begin
 			    '0';
 
 
-	ID_EX_AluSrc_D <= "00" when Hazard_StallMux_Control = '1' else
+	ID_EX_AluSrc_D <= "00" when Hazard_StallMux_Control = '1' or ID_EX_Branch_D = '1' or Jump = '1' else
 				"00" when RType='1' or ID_EX_Branch_D='1' or
 		  		(RegDst='1' and	IF_ID_Inst_Q(5 downto 0)="001000") else  --beq, bne, RType, jr
 			    "01" when IF_ID_Inst_Q(31 downto 26)="001000" or   --addi
@@ -384,7 +385,7 @@ begin
 
 
 
-    ID_EX_WB_D(1) <= '0' when Hazard_StallMux_Control = '1' else
+    ID_EX_WB_D(1) <= '0' when Hazard_StallMux_Control = '1' or ID_EX_Branch_D = '1' or Jump = '1'  else
     			'1' when RType='1' or
 						    IF_ID_Inst_Q(31 downto 26)="100011" or  --lw
 						    IF_ID_Inst_Q(31 downto 26)="100000" or  --lb
