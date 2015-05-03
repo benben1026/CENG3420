@@ -234,7 +234,7 @@ begin
 ------------------------------------------ Pipeline ------------------------------------------
 --IF/ID
 --------------------------------------- update required ---------------------------------------
-	IF_ID_State_D <= '1' when inst = Nil else
+	IF_ID_State_D <= '1' when inst = Nil  else
 					'0';
 	IF_ID_PC_D <= PcNext;
 	IF_ID_InstMem_D <= inst;
@@ -268,6 +268,9 @@ begin
 	ID_EX_WriteData_D <= IF_ID_Inst_Q(20 downto 16) when RegDst = '0' else
 		IF_ID_Inst_Q(15 downto 11);
 
+	ID_EX_State_D <= '0' when IF_ID_Branch_Control = '1' or Jump = '1' or IF_ID_Hazard_Control = '1' else
+					IF_ID_State_Q;
+
 	ID_EX_Addr_D <= std_logic_vector(unsigned(IF_ID_PC_D) + unsigned(resize(shift_left(unsigned(ID_EX_SignExt_D), 2), 32)));
 --ID/EX
 	process (PCclk)
@@ -293,6 +296,7 @@ begin
 	EX_MEM_WB_D(1) <= ID_EX_RegWrite_Q;
 	EX_MEM_M_D <= ID_EX_MemWrite_Q;
 	EX_MEM_RWrite_D <= ID_EX_WriteData_Q;
+	EX_MEM_State_D <= ID_EX_State_Q;
 
 
 --EX/MEM
@@ -308,6 +312,7 @@ begin
 			EX_MEM_State_Q <= EX_MEM_State_D;
 		end if;
 	end process;
+	MEM_WB_State_D <= EX_MEM_State_Q;
 
 --MEM/WB
 	process (PCclk)
