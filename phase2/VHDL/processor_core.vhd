@@ -42,7 +42,7 @@ architecture arch_processor_core of processor_core is
 -- Add signals here
 
 	--Signal: State Control
-	signal STATE: STD_LOGIC;
+	signal STATE: STD_LOGIC := '0';
 	signal Startrunning: STD_LOGIC :='0';
 	signal Finishrunning: STD_LOGIC :='0';
 
@@ -109,8 +109,8 @@ architecture arch_processor_core of processor_core is
 	signal IF_ID_Branch_Control: std_logic;
 	signal IF_ID_Jump_Control: std_logic;
 --	state signal
-	signal IF_ID_State_D: std_logic;
-	signal IF_ID_State_Q: std_logic;
+	signal IF_ID_State_D: std_logic := '0';
+	signal IF_ID_State_Q: std_logic := '0';
 
 	--ID/EX
 
@@ -162,8 +162,8 @@ architecture arch_processor_core of processor_core is
 	signal ID_EX_WriteData_Q: std_logic_vector(4 downto 0);
 	signal ID_EX_Branch_Control: std_logic;
 --	state signal
-	signal ID_EX_State_D: std_logic;
-	signal ID_EX_State_Q: std_logic;
+	signal ID_EX_State_D: std_logic := '0';
+	signal ID_EX_State_Q: std_logic := '0';
 
 
 
@@ -181,8 +181,8 @@ architecture arch_processor_core of processor_core is
 	signal EX_MEM_RWrite_D: std_logic_vector(4 downto 0);
 	signal EX_MEM_RWrite_Q: std_logic_vector(4 downto 0);
 --	state signal
-	signal EX_MEM_State_D: std_logic;
-	signal EX_MEM_State_Q: std_logic;
+	signal EX_MEM_State_D: std_logic := '0';
+	signal EX_MEM_State_Q: std_logic := '0';
 
 	--MEM/WB
 	signal MEM_WB_WB_D: std_logic_vector(1 downto 0);
@@ -194,8 +194,8 @@ architecture arch_processor_core of processor_core is
 	signal MEM_WB_RWrite_D: std_logic_vector(4 downto 0);
 	signal MEM_WB_RWrite_Q: std_logic_vector(4 downto 0);
 --	state signal
-	signal MEM_WB_State_D: std_logic;
-	signal MEM_WB_State_Q: std_logic;
+	signal MEM_WB_State_D: std_logic := '0';
+	signal MEM_WB_State_Q: std_logic := '0';
 
 
 begin
@@ -234,8 +234,8 @@ begin
 ------------------------------------------ Pipeline ------------------------------------------
 --IF/ID
 --------------------------------------- update required ---------------------------------------
-	IF_ID_State_D = "1" when inst = Nil else
-					"0";
+	IF_ID_State_D <= '1' when inst = Nil else
+					'0';
 	IF_ID_PC_D <= PcNext;
 	IF_ID_InstMem_D <= inst;
 	IF_ID_Hazard_Control <= Hazard_IF_EX_Control;
