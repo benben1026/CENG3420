@@ -113,11 +113,11 @@ architecture arch_processor_core of processor_core is
 	-- MemReg, RegWrite
 	signal ID_EX_MemReg_D: std_logic;
 	signal ID_EX_RegWrite_D: std_logic;
---	signal ID_EX_WB_D: std_logic_vector(1 downto 0);
+	signal ID_EX_WB_D: std_logic_vector(1 downto 0);
 	-- MemRead, MemWrite
 	signal ID_EX_MemRead_D: std_logic;
 	signal ID_EX_MemWrite_D: std_logic;
---	signal ID_EX_M_D: std_logic_vector(1 downto 0)
+	signal ID_EX_M_D: std_logic;
 	-- Branch, AluOp, AluSrc
 	signal ID_EX_Branch_D: std_logic;
 	signal ID_EX_AluOp_D: std_logic_vector(3 downto 0);
@@ -136,11 +136,11 @@ architecture arch_processor_core of processor_core is
 	-- MemReg, RegWrite
 	signal ID_EX_MemReg_Q: std_logic;
 	signal ID_EX_RegWrite_Q: std_logic;
---	signal ID_EX_WB_Q: std_logic_vector(1 downto 0);
+	signal ID_EX_WB_Q: std_logic_vector(1 downto 0);
 	-- MemRead, MemWrite
 	signal ID_EX_MemRead_Q: std_logic;
 	signal ID_EX_MemWrite_Q: std_logic;
---	signal ID_EX_M_Q: std_logic_vector(1 downto 0);
+	signal ID_EX_M_Q: std_logic;
 	-- Branch, AluOp, AluSrc
 	signal ID_EX_Branch_Q: std_logic;
 	signal ID_EX_AluOp_Q: std_logic_vector(3 downto 0);
@@ -345,11 +345,11 @@ begin
 	          '1' when IF_ID_Inst_Q(31 downto 26)="000101" and Hazard_StallMux_Control='0' else  --bne
 			  '0';
 
-	ID_EX_WB_D(0) <= "1" when IF_ID_Inst_Q(31 downto 26)="101000" and Hazard_StallMux_Control='0' else --SB
-	            "1" when IF_ID_Inst_Q(31 downto 26)="100011" and Hazard_StallMux_Control='0' else  --lw
-			    "1" when IF_ID_Inst_Q(31 downto 26)="100000" and Hazard_StallMux_Control='0' else  --lb
-			    "1" when IF_ID_Inst_Q(31 downto 26)="100100" and Hazard_StallMux_Control='0' else  --lbu
-				"0";
+	ID_EX_WB_D(0) <= '1' when IF_ID_Inst_Q(31 downto 26)="101000" and Hazard_StallMux_Control='0' else --SB
+	            '1' when IF_ID_Inst_Q(31 downto 26)="100011" and Hazard_StallMux_Control='0' else  --lw
+			    '1' when IF_ID_Inst_Q(31 downto 26)="100000" and Hazard_StallMux_Control='0' else  --lb
+			    '1' when IF_ID_Inst_Q(31 downto 26)="100100" and Hazard_StallMux_Control='0' else  --lbu
+				'0';
 
 	ID_EX_AluOp_D  <= "0000" when IF_ID_Inst_Q(31 downto 30)="10" and Hazard_StallMux_Control='0'		else  --save, load
         		"0001" when RType='1' and Hazard_StallMux_Control='0'                 	else  -- R-type
