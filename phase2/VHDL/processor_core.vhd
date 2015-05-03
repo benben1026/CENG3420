@@ -349,11 +349,11 @@ begin
 
 	PCAdd_Sft_Out <= PcNext + (SignExtension(29 downto 0) & "00");
 
-	PCfirstMuxOut <= PCpre when Hazard_PCMux_Control = '1' else
-					PcNext when PCSrc="00" and Hazard_PCMux_Control = '0' else
-	            	PCAdd_Sft_Out when PCSrc = "01" and Hazard_PCMux_Control = '0' else
+	PCfirstMuxOut <= PCpre when Hazard_PCMux_Control = '1' else -- stall
+					PcNext when PCSrc="00" and Hazard_PCMux_Control = '0' else -- normal
+	            	PCAdd_Sft_Out when PCSrc = "01" and Hazard_PCMux_Control = '0' else -- jump
 			        (PC(31 downto 28) & IF_ID_Inst_Q(25 downto 0 ) & "00")  when PCSrc = "10" else
-	            	aluin1;
+	            	ID_EX_Addr_Q; -- branch
 	instaddr <= PC;
   ---------------------------------------- PC Control ----------------------------------------
 
