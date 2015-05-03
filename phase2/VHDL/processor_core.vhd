@@ -122,6 +122,7 @@ architecture arch_processor_core of processor_core is
 	signal ID_EX_Branch_D: std_logic;
 	signal ID_EX_AluOp_D: std_logic_vector(3 downto 0);
 	signal ID_EX_AluSrc_D: std_logic_vector(1 downto 0);
+	signal ID_EX_control_D: std_logic_vector(5 downto 0);
 
 	signal ID_EX_EX_D: std_logic_vector(3 downto 0);
 	signal ID_EX_Addr_D: std_logic_vector(31 downto 0);
@@ -144,6 +145,7 @@ architecture arch_processor_core of processor_core is
 	signal ID_EX_Branch_Q: std_logic;
 	signal ID_EX_AluOp_Q: std_logic_vector(3 downto 0);
 	signal ID_EX_AluSrc_Q: std_logic_vector(1 downto 0);
+	signal ID_EX_control_Q: std_logic_vector(5 downto 0);
 --	signal ID_EX_EX_Q: std_logic_vector(3 downto 0);
 
 	signal ID_EX_Addr_Q: std_logic_vector(31 downto 0);
@@ -162,6 +164,8 @@ architecture arch_processor_core of processor_core is
 	signal EX_MEM_WB_Q: std_logic_vector(1 downto 0);
 	signal EX_MEM_M_D: std_logic;
 	signal EX_MEM_M_Q: std_logic;
+	signal EX_MEM_control_D: std_logic_vector(5 downto 0);
+	signal EX_MEM_control_Q: std_logic_vector(5 downto 0);
 	signal EX_MEM_ALU_D: std_logic_vector(31 downto 0);
 	signal EX_MEM_ALU_Q: std_logic_vector(31 downto 0);
 	signal EX_MEM_MWrite_D: std_logic_vector(31 downto 0);
@@ -256,6 +260,7 @@ begin
 			ID_EX_MemRead_Q <= ID_EX_MemRead_D;
 			ID_EX_MemWrite_Q <= ID_EX_MemWrite_D;
 			ID_EX_Branch_Q <= ID_EX_Branch_D;
+			ID_EX_control_Q <= ID_EX_control_D;
 			ID_EX_AluSrc_Q <= ID_EX_AluSrc_D;
 			ID_EX_AluOp_Q <= ID_EX_AluOp_D;
 			ID_EX_Addr_Q <= ID_EX_Addr_D;
@@ -277,6 +282,7 @@ begin
 		if(PCclk'event and PCclk = '1') then
 			EX_MEM_WB_Q <= EX_MEM_WB_D;
 			EX_MEM_M_Q <= EX_MEM_M_D;
+			EX_MEM_control_Q <= EX_MEM_control_D;
 			EX_MEM_ALU_Q <= EX_MEM_ALU_D;
 			EX_MEM_MWrite_Q <= EX_MEM_MWrite_D;
 			EX_MEM_RWrite_Q <= EX_MEM_RWrite_D;
@@ -325,6 +331,7 @@ begin
 
 ---------------------------------------- ID stage, Decode and set Hazard Stall ----------------------------------------
 
+	ID_EX_control_D = IF_ID_Inst_Q(31 downto 26);
 	RegDst <= '1' when IF_ID_Inst_Q(31 downto 26)="000000" and Hazard_StallMux_Control='0' else -- 1 means RType
 			  '0';
 
@@ -456,6 +463,7 @@ begin
 		Reg_Write_Data when Forwarding_ControlA = "01" else
 		EX_MEM_ALU_Q;
 
+	EX_MEM_control_D <= ID_EX_control_Q;
 	EX_MEM_MWrite_D <= ID_EX_RegData1_Q when Forwarding_ControlB = "00" else
 		Reg_Write_Data when Forwarding_ControlB = "01" else
 		EX_MEM_ALU_Q;
@@ -489,8 +497,10 @@ begin
 				 "0000000000000000000000000000000" & NOT(Tem2(32)) when ALUConOut="0010" or ALUConOut="0100" else --sltiu sltu
 				 "0000000000000000000000000000000" & Tem1(31); --slti , slt
 
+	EX_MEM_ALU_D = aluResult;
+
 	BeforeZero <= '1' when aluResult="00000000000000000000000000000000" else '0';
-	ZERO <= BeforeZero xor IF_ID_Inst_Q(26);
+	ZERO <= BeforeZero xor ID_EX_control_Q(0);
 
 
 	---------------------------------------- ALU Control ----------------------------------------
@@ -508,41 +518,58 @@ begin
 
 	memaddr <= EX_MEM_ALU_Q(31 downto 2) & "00";
 	memdw <= EX_MEM_MWrite_Q;
+
+	MEM_WB_MAddr_D = memaddr;
+	MEM_WB_RWrite_D = memdw;
 	MEM_WB_MRead_D <= memdr;
 
-	--memaddr <= aluResult(31 downto 2) & "00";
+--	memaddr <= aluResult(31 downto 2) & "00";
 
 	memwen <= EX_MEM_M_Q;
 
-	--memdw  <=aluo1(31 downto 8) & aluMult(7 downto 0)
-	--		   when IF_ID_Inst_Q(31 downto 26)="101000" and aluResult(1 downto 0)="11" else
+----------------------
+--------------------
+-------------------------------
+--------------------move to previous stage-------------------------
+--	memdw  <=aluo1(31 downto 8) & aluMult(7 downto 0)
+--			   when IF_ID_Inst_Q(31 downto 26)="101000" and aluResult(1 downto 0)="11" else
 
-	--         aluMult(7 downto 0) & aluo1(23 downto 0)
-	--         when IF_ID_Inst_Q(31 downto 26)="101000" and aluResult(1 downto 0)="00" else
+--	         aluMult(7 downto 0) & aluo1(23 downto 0)
+--	         when IF_ID_Inst_Q(31 downto 26)="101000" and aluResult(1 downto 0)="00" else
 
-	--		   aluo1(31 downto 16) & aluMult(7 downto 0) & aluo1(7 downto 0)
-	--		   when IF_ID_Inst_Q(31 downto 26)="101000" AND aluResult(1 downto 0)="10" else
+--			   aluo1(31 downto 16) & aluMult(7 downto 0) & aluo1(7 downto 0)
+--			   when IF_ID_Inst_Q(31 downto 26)="101000" AND aluResult(1 downto 0)="10" else
 
-	--		   aluo1(31 downto 24) & aluMult(7 downto 0) & aluo1(15 downto 0)
-	--		   when IF_ID_Inst_Q(31 downto 26)="101000" and aluResult(1 downto 0)="01" else
+--			   aluo1(31 downto 24) & aluMult(7 downto 0) & aluo1(15 downto 0)
+--			   when IF_ID_Inst_Q(31 downto 26)="101000" and aluResult(1 downto 0)="01" else
 
-	--		   aluMult;
+--			   aluMult;
 
-	--aluo1  <= memdr when MemToReg='1' else aluResult;
+	aluo1  <= memdr when MemToReg='1' else aluResult;
+	EX_MEM_RWrite_D <= "11111"         when Jal='1' else
+						ID_EX_WriteData_D;
 
 
   ---------------------------------------- Memory & Data ----------------------------------------
 
 
 
-   ---------------------------------------- WB stage, Value Writing ----------------------------------------
+   ---------------------------------------- WB stage, Value Writing ---------------------------------------- (checking)
 
    -------------------------------- WRONG SIGNAL HERE, UPDATE REQUIRED -------------------------------------
+-- 	aluo2  <= "000000000000000000000000" & aluBuffer when
+--                  IF_ID_Inst_Q(31 downto 26)="100100" or
+--			           (IF_ID_Inst_Q(31 downto 26)="100000" and aluBuffer(7)='0') else
+--			       "111111111111111111111111" & aluBuffer when
+--			            IF_ID_Inst_Q(31 downto 26)="100000" and aluBuffer(7)='1' else
+--			            PcNext when Jal='1'
+--			            else aluo1;
+
  	aluo2  <= "000000000000000000000000" & aluBuffer when
-                  IF_ID_Inst_Q(31 downto 26)="100100" or
-			           (IF_ID_Inst_Q(31 downto 26)="100000" and aluBuffer(7)='0') else
+                  EX_MEM_control_Q(5 downto 0)="100100" or
+			           (EX_MEM_control_Q(5 downto 0)="100000" and aluBuffer(7)='0') else
 			       "111111111111111111111111" & aluBuffer when
-			            IF_ID_Inst_Q(31 downto 26)="100000" and aluBuffer(7)='1' else
+			            EX_MEM_control_Q(5 downto 0)="100000" and aluBuffer(7)='1' else
 			            PcNext when Jal='1'
 			            else aluo1;
 
@@ -551,10 +578,10 @@ begin
 		        	aluo1(15 downto  8)  when aluin2(1 downto 0)="10" else
 		      		 aluo1( 7 downto  0);
 
-
-	 RegWriteAddr <= "11111"         when Jal='1' else
-			            		IF_ID_Inst_Q(20 downto 16)  when RegDst = '0' else
-			            		IF_ID_Inst_Q(15 downto 11);
+	RegWriteAddr = EX_MEM_RWrite_Q;
+--	RegWriteAddr <= "11111"         when Jal='1' else
+--			            		IF_ID_Inst_Q(20 downto 16)  when RegDst = '0' else
+--			            		IF_ID_Inst_Q(15 downto 11);
   ---------------------------------------- Value Writing ----------------------------------------
 
 
