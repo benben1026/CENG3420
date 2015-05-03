@@ -331,7 +331,7 @@ begin
 
 ---------------------------------------- ID stage, Decode and set Hazard Stall ----------------------------------------
 
-	ID_EX_control_D = IF_ID_Inst_Q(31 downto 26);
+	ID_EX_control_D <= IF_ID_Inst_Q(31 downto 26);
 	RegDst <= '1' when IF_ID_Inst_Q(31 downto 26)="000000" and Hazard_StallMux_Control='0' else -- 1 means RType
 			  '0';
 
@@ -497,7 +497,7 @@ begin
 				 "0000000000000000000000000000000" & NOT(Tem2(32)) when ALUConOut="0010" or ALUConOut="0100" else --sltiu sltu
 				 "0000000000000000000000000000000" & Tem1(31); --slti , slt
 
-	EX_MEM_ALU_D = aluResult;
+	EX_MEM_ALU_D <= aluResult;
 
 	BeforeZero <= '1' when aluResult="00000000000000000000000000000000" else '0';
 	ZERO <= BeforeZero xor ID_EX_control_Q(0);
@@ -519,8 +519,7 @@ begin
 	memaddr <= EX_MEM_ALU_Q(31 downto 2) & "00";
 	memdw <= EX_MEM_MWrite_Q;
 
-	MEM_WB_MAddr_D = memaddr;
-	MEM_WB_RWrite_D = memdw;
+	MEM_WB_MAddr_D <= EX_MEM_ALU_Q(31 downto 2) & "00";
 	MEM_WB_MRead_D <= memdr;
 
 --	memaddr <= aluResult(31 downto 2) & "00";
@@ -578,7 +577,7 @@ begin
 		        	aluo1(15 downto  8)  when aluin2(1 downto 0)="10" else
 		      		 aluo1( 7 downto  0);
 
-	RegWriteAddr = EX_MEM_RWrite_Q;
+	RegWriteAddr <= EX_MEM_RWrite_Q;
 --	RegWriteAddr <= "11111"         when Jal='1' else
 --			            		IF_ID_Inst_Q(20 downto 16)  when RegDst = '0' else
 --			            		IF_ID_Inst_Q(15 downto 11);
