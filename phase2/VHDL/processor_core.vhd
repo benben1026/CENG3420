@@ -286,10 +286,13 @@ begin
 			ID_EX_AluOp_Q <= ID_EX_AluOp_D;
 			ID_EX_Addr_Q <= ID_EX_Addr_D;
 			ID_EX_funct_Q <= ID_EX_funct_D;
+			ID_EX_RegData1_Q <= ID_EX_RegData1_D;
+			ID_EX_RegData2_Q <= ID_EX_RegData2_D;
 			ID_EX_RegRead1_Q <= ID_EX_RegRead1_D;
 			ID_EX_RegRead2_Q <= ID_EX_RegRead2_D;
 			ID_EX_WriteData_Q <= ID_EX_WriteData_D;
 			ID_EX_State_Q <= ID_EX_State_D;
+			ID_EX_SignExt_Q <= ID_EX_SignExt_D;
 		end if;
 	end process;
 	EX_MEM_WB_D(0) <= ID_EX_MemReg_Q;
@@ -438,9 +441,9 @@ begin
 				       '1' when Jump='1' and IF_ID_Inst_Q(31 downto 26)="000000"  else
 				       '0';
 
-	aluin2 <= aluMult when ID_EX_AluSrc_Q="00" else
-			ID_EX_SignExt_Q    when ID_EX_AluSrc_Q="01" else
-			"0000000000000000" & IF_ID_Inst_Q(15 downto 0);
+	--aluin2 <= aluMult when ID_EX_AluSrc_Q="00" else
+	--		ID_EX_SignExt_Q    when ID_EX_AluSrc_Q="01" else
+	--		"0000000000000000" & IF_ID_Inst_Q(15 downto 0);
 
 	Jal <= '1' when IF_ID_Inst_Q(31 downto 26)="000011" else
 		   '0';
