@@ -63,6 +63,7 @@ architecture arch_processor_core of processor_core is
 	SIGNAL SignExtension: STD_LOGIC_VECTOR(31 downto 0);--aluloc
 
 	--Signal: PC Control
+	constant Nil: std_logic_vector(31 downto 0) := "00000000000000000000000000000000";
 	constant Four: STD_LOGIC_VECTOR(31 downto 0) := "00000000000000000000000000000100";
 	constant BaseAddress: STD_LOGIC_VECTOR(31 downto 0) :="00000000000000000100000000000000"; --0x00400000
 	signal PcNext: STD_LOGIC_VECTOR(31 downto 0);--newpc
@@ -107,6 +108,9 @@ architecture arch_processor_core of processor_core is
 	signal IF_ID_Hazard_Control: std_logic;
 	signal IF_ID_Branch_Control: std_logic;
 	signal IF_ID_Jump_Control: std_logic;
+--	state signal
+	signal IF_ID_State_D: std_logic;
+	signal IF_ID_State_Q: std_logic;
 
 	--ID/EX
 
@@ -157,6 +161,9 @@ architecture arch_processor_core of processor_core is
 	signal ID_EX_RegRead2_Q: std_logic_vector(4 downto 0);
 	signal ID_EX_WriteData_Q: std_logic_vector(4 downto 0);
 	signal ID_EX_Branch_Control: std_logic;
+--	state signal
+	signal ID_EX_State_D: std_logic;
+	signal ID_EX_State_Q: std_logic;
 
 
 
@@ -173,6 +180,9 @@ architecture arch_processor_core of processor_core is
 	signal EX_MEM_MWrite_Q: std_logic_vector(31 downto 0);
 	signal EX_MEM_RWrite_D: std_logic_vector(4 downto 0);
 	signal EX_MEM_RWrite_Q: std_logic_vector(4 downto 0);
+--	state signal
+	signal EX_MEM_State_D: std_logic;
+	signal EX_MEM_State_Q: std_logic;
 
 	--MEM/WB
 	signal MEM_WB_WB_D: std_logic_vector(1 downto 0);
@@ -183,6 +193,9 @@ architecture arch_processor_core of processor_core is
 	signal MEM_WB_MAddr_Q: std_logic_vector(31 downto 0);
 	signal MEM_WB_RWrite_D: std_logic_vector(4 downto 0);
 	signal MEM_WB_RWrite_Q: std_logic_vector(4 downto 0);
+--	state signal
+	signal MEM_WB_State_D: std_logic;
+	signal MEM_WB_State_Q: std_logic;
 
 
 begin
@@ -221,6 +234,8 @@ begin
 ------------------------------------------ Pipeline ------------------------------------------
 --IF/ID
 --------------------------------------- update required ---------------------------------------
+	IF_ID_State_D = "1" when inst = Nil else
+					"0";
 	IF_ID_PC_D <= PcNext;
 	IF_ID_InstMem_D <= inst;
 	IF_ID_Hazard_Control <= Hazard_IF_EX_Control;
@@ -232,6 +247,8 @@ begin
 		if (PCclk = '1' and PCclk'event) then
 			IF_ID_Inst_Q <= IF_ID_InstMem_D;
 			IF_ID_PC_Q <= IF_ID_PC_D;
+			IF_ID_State_Q <= IF_ID_State_D;
+
 			if (IF_ID_Hazard_Control = '1' or IF_ID_Jump_Control = '1' or IF_ID_Branch_Control = '1') then
 				IF_ID_Inst_Q(31 downto 26) <= "000000";
 			end if;
@@ -269,6 +286,7 @@ begin
 			ID_EX_RegRead1_Q <= ID_EX_RegRead1_D;
 			ID_EX_RegRead2_Q <= ID_EX_RegRead2_D;
 			ID_EX_WriteData_Q <= ID_EX_WriteData_D;
+			ID_EX_State_Q <= ID_EX_State_D;
 		end if;
 	end process;
 	EX_MEM_WB_D(0) <= ID_EX_MemReg_Q;
@@ -287,6 +305,7 @@ begin
 			EX_MEM_ALU_Q <= EX_MEM_ALU_D;
 			EX_MEM_MWrite_Q <= EX_MEM_MWrite_D;
 			EX_MEM_RWrite_Q <= EX_MEM_RWrite_D;
+			EX_MEM_State_Q <= EX_MEM_State_D;
 		end if;
 	end process;
 
@@ -298,6 +317,7 @@ begin
 			MEM_WB_MAddr_Q <= MEM_WB_MAddr_D;
 			MEM_WB_MRead_Q <= MEM_WB_MRead_D;
 			MEM_WB_RWrite_Q <= MEM_WB_RWrite_D;
+			MEM_WB_State_Q <= MEM_WB_State_D;
 		end if;
 	end process;
 ------------------------------------------ Pipeline ------------------------------------------
@@ -587,9 +607,18 @@ begin
 
 
 	---------------------------------------- Finish ----------------------------------------
-	STATE <= '1' when (IF_ID_Inst_Q(31 downto 30) & IF_ID_Inst_Q(28 downto 26)="10011" and not aluResult(1 downto 0)="00")
-	                  or (ID_EX_AluSrc_D="11" or not PCfirstMuxOut(1 downto 0)="00")
-	             else '0';
+--	STATE <= '1' when (IF_ID_Inst_Q(31 downto 30) & IF_ID_Inst_Q(28 downto 26)="10011" and not aluResult(1 downto 0)="00")
+--	                  or (ID_EX_AluSrc_D="11" or not PCfirstMuxOut(1 downto 0)="00")
+--	             else '0';
+
+
+	process(PCclk)
+	begin
+	if (PCclk = '1' and PCclk'event) then
+		STATE <= MEM_WB_State_Q;
+	end if;
+	end process;
+
 	process (clk, run)
 	begin
 
