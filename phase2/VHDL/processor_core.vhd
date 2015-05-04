@@ -200,8 +200,6 @@ architecture arch_processor_core of processor_core is
 	signal MEM_WB_RWrite_D: std_logic_vector(4 downto 0);
 	signal MEM_WB_RWrite_Q: std_logic_vector(4 downto 0);
 --	state signal
-	signal MEM_WB_State_D: std_logic := '0';
-	signal MEM_WB_State_Q: std_logic := '0';
 
 
 begin
@@ -323,7 +321,6 @@ begin
 			EX_MEM_State_Q <= EX_MEM_State_D;
 		end if;
 	end process;
-	MEM_WB_State_D <= EX_MEM_State_Q;
 
 --MEM/WB
 	process (PCclk)
@@ -333,7 +330,6 @@ begin
 			MEM_WB_MAddr_Q <= MEM_WB_MAddr_D;
 			MEM_WB_MRead_Q <= MEM_WB_MRead_D;
 			MEM_WB_RWrite_Q <= MEM_WB_RWrite_D;
-			MEM_WB_State_Q <= MEM_WB_State_D;
 		end if;
 	end process;
 ------------------------------------------ Pipeline ------------------------------------------
@@ -628,19 +624,19 @@ begin
 --	             else '0';
 
 
-	process(PCclk)
-	begin
-	if (PCclk = '1' and PCclk'event) then
-		STATE <= MEM_WB_State_Q;
-	end if;
-	end process;
+--	process(PCclk)
+--	begin
+--	if (PCclk = '1' and PCclk'event) then
+--		STATE <= EX_MEM_State_Q;
+--	end if;
+--	end process;
 
 	process (clk, run)
 	begin
 
 		if (run='1') then Finishrunning <= '0';
 		  elsif (clk='1' and clk'event ) then
-		    Finishrunning <= (Finishrunning or STATE);
+		    Finishrunning <= (Finishrunning or EX_MEM_State_Q);
 		end if;
     end process;
 
