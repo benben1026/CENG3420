@@ -215,7 +215,7 @@ begin
 		raddrA  => IF_ID_Inst_Q(25 downto 21),
 		raddrB  => IF_ID_Inst_Q(20 downto 16),
 		wen     => Reg_Write_Enable,
-		waddr   => MEM_WB_RWrite_Q,
+		waddr   => MEM_WB_RWrite_D,
 		din	    => Reg_Write_Data,
 		doutA   => ID_EX_RegData1_D,
 		doutB   => ID_EX_RegData2_D,
@@ -277,6 +277,8 @@ begin
 	ID_EX_State_D <= IF_ID_State_Q;
 
 	ID_EX_Addr_D <= std_logic_vector(unsigned(IF_ID_PC_Q) + unsigned(resize(shift_left(unsigned(ID_EX_SignExt_D), 2), 32)));
+
+	ID_EX_funct_D <= IF_ID_Inst_Q(5 downto 0);
 	--debug1 <= std_logic_vector(unsigned(IF_ID_PC_Q));
 	--debug2 <= std_logic_vector(resize(shift_left(unsigned(ID_EX_SignExt_D), 2), 32));
 --ID/EX
@@ -333,9 +335,9 @@ begin
 			MEM_WB_MAddr_Q <= MEM_WB_MAddr_D;
 			MEM_WB_MRead_Q <= MEM_WB_MRead_D;
 			MEM_WB_RWrite_Q <= MEM_WB_RWrite_D;
-			Reg_Write_Enable <= MEM_WB_WB_D(1); -- set reg write enable
 		end if;
 	end process;
+	Reg_Write_Enable <= MEM_WB_WB_D(1); -- set reg write enable
 ------------------------------------------ Pipeline ------------------------------------------
 
   ---------------------------------------- IF stage, PC Control ----------------------------------------
@@ -504,11 +506,11 @@ begin
 
 
 ---------------------------------------- Forwarding Unit ------------------------------------
-	Forwarding_ControlA <= "10" when EX_MEM_WB_Q(1) = '1' and ID_EX_RegData1_Q = EX_MEM_RWrite_Q else
-						"01" when MEM_WB_WB_Q(1) = '1' and ID_EX_RegData1_Q = MEM_WB_RWrite_Q else
+	Forwarding_ControlA <= "10" when EX_MEM_WB_Q(1) = '1' and ID_EX_RegRead1_Q = EX_MEM_RWrite_Q else
+						"01" when MEM_WB_WB_Q(1) = '1' and ID_EX_RegRead1_Q = MEM_WB_RWrite_Q else
 						"00";
-	Forwarding_ControlB <= "10" when EX_MEM_WB_Q(1) = '1' and ID_EX_RegData2_Q = EX_MEM_RWrite_Q else
-						"01" when MEM_WB_WB_Q(1) = '1' and ID_EX_RegData2_Q = MEM_WB_RWrite_Q else
+	Forwarding_ControlB <= "10" when EX_MEM_WB_Q(1) = '1' and ID_EX_RegRead2_Q = EX_MEM_RWrite_Q else
+						"01" when MEM_WB_WB_Q(1) = '1' and ID_EX_RegRead2_Q = MEM_WB_RWrite_Q else
 						"00";
 ---------------------------------------- Forwarding Unit ------------------------------------
 
@@ -567,14 +569,14 @@ begin
 
 	---------------------------------------- MEM stage, Memory & Data  ----------------------------------------
 	--register write back mux
-	Reg_Write_Data <= MEM_WB_MRead_Q when MEM_WB_WB_Q(0) = '1' else
-		MEM_WB_MAddr_Q;
+	Reg_Write_Data <= MEM_WB_MRead_D when MEM_WB_WB_D(0) = '1' else
+		MEM_WB_MAddr_D;
 	--end
 
 	memaddr <= EX_MEM_ALU_Q(31 downto 2) & "00";
 	memdw <= EX_MEM_MWrite_Q;
 
-	MEM_WB_MAddr_D <= EX_MEM_ALU_Q(31 downto 2) & "00";
+	MEM_WB_MAddr_D <= EX_MEM_ALU_Q;
 	MEM_WB_MRead_D <= memdr;
 
 --	memaddr <= aluResult(31 downto 2) & "00";
