@@ -241,12 +241,13 @@ begin
 	IF_ID_State_D <= '0' when Hazard_IF_EX_Control = '1' or Jump = '1' or IF_ID_Branch_Control = '1' else
 					'1' when inst = Nil  else
 					'0';
-	IF_ID_PC_D <= PcNext;
-	IF_ID_InstMem_D <= inst;
 	IF_ID_Hazard_Control <= Hazard_IF_EX_Control;
 	IF_ID_Jump_Control <= Jump;
 	IF_ID_Branch_Control <= '1' when ZERO = '1' and ID_EX_Branch_Q = '1' else
 							'0';
+	IF_ID_PC_D <= PcNext;
+	IF_ID_InstMem_D <= Nil when IF_ID_Hazard_Control = '1' or IF_ID_Jump_Control = '1' or IF_ID_Branch_Control = '1' else
+						inst;
 	process (PCclk)
 	begin
 		if (PCclk = '1' and PCclk'event) then
@@ -254,9 +255,9 @@ begin
 			IF_ID_PC_Q <= IF_ID_PC_D;
 			IF_ID_State_Q <= IF_ID_State_D;
 
-			if (IF_ID_Hazard_Control = '1' or IF_ID_Jump_Control = '1' or IF_ID_Branch_Control = '1') then
-				IF_ID_Inst_Q(31 downto 26) <= "000000";
-			end if;
+--			if (IF_ID_Hazard_Control = '1' or IF_ID_Jump_Control = '1' or IF_ID_Branch_Control = '1') then
+--				IF_ID_Inst_Q(31 downto 26) <= "000000";
+--			end if;
 		end if;
 	end process;
 
@@ -356,11 +357,29 @@ begin
 
 	PCAdd_Sft_Out <= PcNext + (ID_EX_SignExt_D(29 downto 0) & "00");
 
-	PCfirstMuxOut <= PCpre when Hazard_PCMux_Control = '1' else -- stall
-					PcNext when PCSrc="00" and Hazard_PCMux_Control = '0' else -- normal
-	            	ID_EX_Addr_D when PCSrc = "01" and Hazard_PCMux_Control = '0' else -- branch
-			        (PC(31 downto 28) & IF_ID_Inst_Q(25 downto 0 ) & "00")  when PCSrc = "10" else -- jump
-	            	PCAdd_Sft_Out;
+--	process(rst, PCclk)
+--	begin
+--		if (rst = '1') then
+--			PCfirstMuxOut <= BaseAddress + Four;
+--		elsif (PCclk = '0' and PCclk'event) then
+--			if (Hazard_PCMux_Control = '1') then
+--				PCfirstMuxOut <= PC;	-- data hazard
+--			elsif (PCSrc = "00") then
+--				PCfirstMuxOut <= PcNext; -- normal
+--			elsif (PCSrc = "01") then
+--				PCfirstMuxOut <= ID_EX_Addr_Q;
+--			elsif (PCSrc = "10") then
+--				PCfirstMuxOut <= (PC(31 downto 28) & IF_ID_Inst_Q(25 downto 0 ) & "00");
+--			else
+--				PCfirstMuxOut <= PCAdd_Sft_Out;
+--			end if;
+--		end if;
+--	end process;
+
+	PCfirstMuxOut <= PC when Hazard_PCMux_Control = '1' else -- stall
+	            	ID_EX_Addr_Q when IF_ID_Branch_Control = '1' else -- branch
+			        (PC(31 downto 28) & IF_ID_Inst_Q(25 downto 0 ) & "00")  when IF_ID_Jump_Control = '1' else -- jump
+	            	PcNext;
 	instaddr <= PC;
   ---------------------------------------- PC Control ----------------------------------------
 
