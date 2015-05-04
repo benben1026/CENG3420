@@ -215,7 +215,7 @@ begin
 		raddrA  => IF_ID_Inst_Q(25 downto 21),
 		raddrB  => IF_ID_Inst_Q(20 downto 16),
 		wen     => Reg_Write_Enable,
-		waddr   => RegWriteAddr,
+		waddr   => MEM_WB_RWrite_Q,
 		din	    => Reg_Write_Data,
 		doutA   => ID_EX_RegData1_D,
 		doutB   => ID_EX_RegData2_D,
@@ -323,6 +323,7 @@ begin
 		end if;
 	end process;
 	MEM_WB_WB_D <= EX_MEM_WB_Q;
+	MEM_WB_RWrite_D <= EX_MEM_RWrite_Q;
 --MEM/WB
 	process (PCclk)
 	begin
@@ -582,8 +583,8 @@ begin
 --			   aluMult;
 
 	aluo1  <= memdr when ID_EX_WB_Q(0)='1' else aluResult;
-	EX_MEM_RWrite_D <= "11111"         when Jal='1' else
-						ID_EX_WriteData_D;
+	--EX_MEM_RWrite_D <= "11111"         when Jal='1' else
+	--					ID_EX_WriteData_D;
 
 
   ---------------------------------------- Memory & Data ----------------------------------------
@@ -614,7 +615,7 @@ begin
 		        	aluo1(15 downto  8)  when aluin2(1 downto 0)="10" else
 		      		 aluo1( 7 downto  0);
 
-	RegWriteAddr <= EX_MEM_RWrite_Q;
+	--RegWriteAddr <= MEM_WB_RWrite_Q;
 --	RegWriteAddr <= "11111"         when Jal='1' else
 --			            		IF_ID_Inst_Q(20 downto 16)  when RegDst = '0' else
 --			            		IF_ID_Inst_Q(15 downto 11);
