@@ -208,8 +208,6 @@ begin
 	(
 		clk     => PCclk,
 		rst     => rst,
---		raddrA  => inst(25 downto 21),
---		raddrB  => inst(20 downto 16),
 		raddrA  => IF_ID_Inst_Q(25 downto 21),
 		raddrB  => IF_ID_Inst_Q(20 downto 16),
 		wen     => Reg_Write_Enable,
@@ -217,7 +215,7 @@ begin
 		din	    => Reg_Write_Data,
 		doutA   => ID_EX_RegData1_D,
 		doutB   => ID_EX_RegData2_D,
-		extaddr => "00101",
+		extaddr => regaddr,
 		extdout => regdout
 	);
  ---------------------------------------- Port Map ----------------------------------------
@@ -260,16 +258,6 @@ begin
 		end if;
 	end process;
 
---Register Data Hazard Handling
-	--process( PCclk )
-	--begin
-	--	if(PCclk'event and PCclk = '1') then
-	--		Reg_Write_Enable <= MEM_WB_WB_Q(1);
-	--	elsif(PCclk'event and PCclk = '0') then
-	--		Reg_Write_Enable <= '0';
-	--	end if;
-	--end process;
-
 	ID_EX_WriteData_D <= IF_ID_Inst_Q(20 downto 16) when RegDst = '0' else
 		IF_ID_Inst_Q(15 downto 11);
 
@@ -278,8 +266,7 @@ begin
 	ID_EX_Addr_D <= std_logic_vector(unsigned(IF_ID_PC_Q) + unsigned(resize(shift_left(unsigned(ID_EX_SignExt_D), 2), 32)));
 
 	ID_EX_funct_D <= IF_ID_Inst_Q(5 downto 0);
-	--debug1 <= std_logic_vector(unsigned(IF_ID_PC_Q));
-	--debug2 <= std_logic_vector(resize(shift_left(unsigned(ID_EX_SignExt_D), 2), 32));
+
 --ID/EX
 	process (PCclk)
 	begin
@@ -470,10 +457,6 @@ begin
 				       '1' when Jump='1' and IF_ID_Inst_Q(31 downto 26)="000000"  else
 				       '0';
 
-	--aluin2 <= aluMult when ID_EX_AluSrc_Q="00" else
-	--		ID_EX_SignExt_Q    when ID_EX_AluSrc_Q="01" else
-	--		"0000000000000000" & IF_ID_Inst_Q(15 downto 0);
-
 	Jal <= '1' when IF_ID_Inst_Q(31 downto 26)="000011" else
 		   '0';
   ---------------------------------------- Decode ----------------------------------------
@@ -588,23 +571,8 @@ begin
 --------------------
 -------------------------------
 --------------------move to previous stage-------------------------
---	memdw  <=aluo1(31 downto 8) & aluMult(7 downto 0)
---			   when IF_ID_Inst_Q(31 downto 26)="101000" and aluResult(1 downto 0)="11" else
-
---	         aluMult(7 downto 0) & aluo1(23 downto 0)
---	         when IF_ID_Inst_Q(31 downto 26)="101000" and aluResult(1 downto 0)="00" else
-
---			   aluo1(31 downto 16) & aluMult(7 downto 0) & aluo1(7 downto 0)
---			   when IF_ID_Inst_Q(31 downto 26)="101000" AND aluResult(1 downto 0)="10" else
-
---			   aluo1(31 downto 24) & aluMult(7 downto 0) & aluo1(15 downto 0)
---			   when IF_ID_Inst_Q(31 downto 26)="101000" and aluResult(1 downto 0)="01" else
-
---			   aluMult;
 
 	aluo1  <= memdr when ID_EX_WB_Q(0)='1' else aluResult;
-	--EX_MEM_RWrite_D <= "11111"         when Jal='1' else
-	--					ID_EX_WriteData_D;
 
 
   ---------------------------------------- Memory & Data ----------------------------------------
