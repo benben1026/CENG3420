@@ -42,10 +42,10 @@ architecture arch_processor_core of processor_core is
 -- Add signals here
 
 ------------------------ TESTING SIGNALS ---------------------------
-	signal debug1: std_logic_vector(31 downto 0);
-	signal debug2: std_logic_vector(31 downto 0);
-	signal test3: std_logic_vector(31 downto 0);
-	signal test4: std_logic_vector(31 downto 0);
+	--signal debug1: std_logic_vector(31 downto 0);
+	--signal debug2: std_logic_vector(31 downto 0);
+	--signal test3: std_logic_vector(31 downto 0);
+	--signal test4: std_logic_vector(31 downto 0);
 
 	--Signal: State Control
 	signal STATE: STD_LOGIC := '0';
@@ -219,7 +219,7 @@ begin
 		din	    => Reg_Write_Data,
 		doutA   => ID_EX_RegData1_D,
 		doutB   => ID_EX_RegData2_D,
-		extaddr => regaddr,
+		extaddr => "00100",
 		extdout => regdout
 	);
  ---------------------------------------- Port Map ----------------------------------------
@@ -261,14 +261,14 @@ begin
 	end process;
 
 --Register Data Hazard Handling
-	process( PCclk )
-	begin
-		if(PCclk'event and PCclk = '1') then
-			Reg_Write_Enable <= MEM_WB_WB_Q(1);
-		elsif(PCclk'event and PCclk = '0') then
-			Reg_Write_Enable <= '0';
-		end if;
-	end process;
+	--process( PCclk )
+	--begin
+	--	if(PCclk'event and PCclk = '1') then
+	--		Reg_Write_Enable <= MEM_WB_WB_Q(1);
+	--	elsif(PCclk'event and PCclk = '0') then
+	--		Reg_Write_Enable <= '0';
+	--	end if;
+	--end process;
 
 	ID_EX_WriteData_D <= IF_ID_Inst_Q(20 downto 16) when RegDst = '0' else
 		IF_ID_Inst_Q(15 downto 11);
@@ -276,8 +276,8 @@ begin
 	ID_EX_State_D <= IF_ID_State_Q;
 
 	ID_EX_Addr_D <= std_logic_vector(unsigned(IF_ID_PC_Q) + unsigned(resize(shift_left(unsigned(ID_EX_SignExt_D), 2), 32)));
-	debug1 <= std_logic_vector(unsigned(IF_ID_PC_Q));
-	debug2 <= std_logic_vector(resize(shift_left(unsigned(ID_EX_SignExt_D), 2), 32));
+	--debug1 <= std_logic_vector(unsigned(IF_ID_PC_Q));
+	--debug2 <= std_logic_vector(resize(shift_left(unsigned(ID_EX_SignExt_D), 2), 32));
 --ID/EX
 	process (PCclk)
 	begin
@@ -299,11 +299,12 @@ begin
 			ID_EX_WriteData_Q <= ID_EX_WriteData_D;
 			ID_EX_State_Q <= ID_EX_State_D;
 			ID_EX_SignExt_Q <= ID_EX_SignExt_D;
+			ID_EX_WB_Q <= ID_EX_WB_D;
+			ID_EX_M_Q <= ID_EX_M_D;
 		end if;
 	end process;
-	EX_MEM_WB_D(0) <= ID_EX_MemReg_Q;
-	EX_MEM_WB_D(1) <= ID_EX_RegWrite_Q;
-	EX_MEM_M_D <= ID_EX_MemWrite_Q;
+	EX_MEM_WB_D <= ID_EX_WB_Q;
+	EX_MEM_M_D <= ID_EX_M_Q;
 	EX_MEM_RWrite_D <= ID_EX_WriteData_Q;
 	EX_MEM_State_D <= ID_EX_State_Q;
 
@@ -321,7 +322,7 @@ begin
 			EX_MEM_State_Q <= EX_MEM_State_D;
 		end if;
 	end process;
-
+	MEM_WB_WB_D <= EX_MEM_WB_Q;
 --MEM/WB
 	process (PCclk)
 	begin
@@ -330,6 +331,9 @@ begin
 			MEM_WB_MAddr_Q <= MEM_WB_MAddr_D;
 			MEM_WB_MRead_Q <= MEM_WB_MRead_D;
 			MEM_WB_RWrite_Q <= MEM_WB_RWrite_D;
+			Reg_Write_Enable <= MEM_WB_WB_D(1); -- set reg write enable
+		elsif(PCclk'event and PCclk = '0') then
+			Reg_Write_Enable <= '0';
 		end if;
 	end process;
 ------------------------------------------ Pipeline ------------------------------------------
