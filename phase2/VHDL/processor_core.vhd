@@ -347,13 +347,13 @@ begin
 	PCout  <= PC;
 	PcNext <= PC + Four;
 
-	PCAdd_Sft_Out <= PcNext + (SignExtension(29 downto 0) & "00");
+	PCAdd_Sft_Out <= PcNext + (ID_EX_SignExt_D(29 downto 0) & "00");
 
 	PCfirstMuxOut <= PCpre when Hazard_PCMux_Control = '1' else -- stall
 					PcNext when PCSrc="00" and Hazard_PCMux_Control = '0' else -- normal
-	            	PCAdd_Sft_Out when PCSrc = "01" and Hazard_PCMux_Control = '0' else -- jump
-			        (PC(31 downto 28) & IF_ID_Inst_Q(25 downto 0 ) & "00")  when PCSrc = "10" else
-	            	ID_EX_Addr_Q; -- branch
+	            	ID_EX_Addr_Q when PCSrc = "01" and Hazard_PCMux_Control = '0' else -- branch
+			        (PC(31 downto 28) & IF_ID_Inst_Q(25 downto 0 ) & "00")  when PCSrc = "10" else -- jump
+	            	PCAdd_Sft_Out;
 	instaddr <= PC;
   ---------------------------------------- PC Control ----------------------------------------
 
