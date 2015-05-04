@@ -121,7 +121,6 @@ architecture arch_processor_core of processor_core is
 	--ID/EX
 
 	-- MemReg, RegWrite
-	signal ID_EX_MemReg_D: std_logic;
 	signal ID_EX_RegWrite_D: std_logic;
 	signal ID_EX_WB_D: std_logic_vector(1 downto 0);
 	-- MemRead, MemWrite
@@ -144,7 +143,6 @@ architecture arch_processor_core of processor_core is
 	signal ID_EX_RegRead2_D: std_logic_vector(4 downto 0);
 	signal ID_EX_WriteData_D: std_logic_vector(4 downto 0);
 	-- MemReg, RegWrite
-	signal ID_EX_MemReg_Q: std_logic;
 	signal ID_EX_RegWrite_Q: std_logic;
 	signal ID_EX_WB_Q: std_logic_vector(1 downto 0);
 	-- MemRead, MemWrite
@@ -285,7 +283,6 @@ begin
 	process (PCclk)
 	begin
 		if(PCclk'event and PCclk = '1') then
-			ID_EX_MemRead_Q <= ID_EX_MemReg_D;
 			ID_EX_RegWrite_Q <= ID_EX_RegWrite_D;
 			ID_EX_MemRead_Q <= ID_EX_MemRead_D;
 			ID_EX_MemWrite_Q <= ID_EX_MemWrite_D;
@@ -421,6 +418,9 @@ begin
 	ID_EX_M_D <= '1' when IF_ID_Inst_Q(31 downto 26)="101000" and Hazard_StallMux_Control='0' else --sb
 				'1' when IF_ID_Inst_Q(31 downto 26)="101011" and Hazard_StallMux_Control='0' else    --sw
 			    '0';
+
+	ID_EX_MemRead_D <= '1' when IF_ID_Inst_Q(31 downto 26) = "100011" else
+						'0';
 
 
 	ID_EX_AluSrc_D <= "00" when Hazard_StallMux_Control = '1' or ID_EX_Branch_D = '1' or Jump = '1' else
