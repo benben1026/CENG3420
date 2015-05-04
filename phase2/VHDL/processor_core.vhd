@@ -249,10 +249,11 @@ begin
 	process (PCclk)
 	begin
 		if (PCclk = '1' and PCclk'event) then
-			IF_ID_Inst_Q <= IF_ID_InstMem_D;
-			IF_ID_PC_Q <= IF_ID_PC_D;
-			IF_ID_State_Q <= IF_ID_State_D;
-
+			if (IF_ID_Hazard_Control = '0') then
+				IF_ID_Inst_Q <= IF_ID_InstMem_D;
+				IF_ID_PC_Q <= IF_ID_PC_D;
+				IF_ID_State_Q <= IF_ID_State_D;
+			end if;
 --			if (IF_ID_Hazard_Control = '1' or IF_ID_Jump_Control = '1' or IF_ID_Branch_Control = '1') then
 --				IF_ID_Inst_Q(31 downto 26) <= "000000";
 --			end if;
