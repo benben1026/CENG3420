@@ -217,7 +217,7 @@ begin
 		din	    => Reg_Write_Data,
 		doutA   => ID_EX_RegData1_D,
 		doutB   => ID_EX_RegData2_D,
-		extaddr => "00100",
+		extaddr => "00101",
 		extdout => regdout
 	);
  ---------------------------------------- Port Map ----------------------------------------
