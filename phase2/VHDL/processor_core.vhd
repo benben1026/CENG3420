@@ -333,8 +333,6 @@ begin
 			MEM_WB_MRead_Q <= MEM_WB_MRead_D;
 			MEM_WB_RWrite_Q <= MEM_WB_RWrite_D;
 			Reg_Write_Enable <= MEM_WB_WB_D(1); -- set reg write enable
-		elsif(PCclk'event and PCclk = '0') then
-			Reg_Write_Enable <= '0';
 		end if;
 	end process;
 ------------------------------------------ Pipeline ------------------------------------------
@@ -502,7 +500,7 @@ begin
 		EX_MEM_ALU_Q;
 
 	EX_MEM_control_D <= ID_EX_control_Q;
-	EX_MEM_MWrite_D <= ID_EX_RegData1_Q when Forwarding_ControlB = "00" else
+	EX_MEM_MWrite_D <= ID_EX_RegData2_Q when Forwarding_ControlB = "00" else
 		Reg_Write_Data when Forwarding_ControlB = "01" else
 		EX_MEM_ALU_Q;
 	aluin2 <= EX_MEM_MWrite_D when ID_EX_AluSrc_Q = "00" else
