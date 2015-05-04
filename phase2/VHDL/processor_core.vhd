@@ -41,6 +41,12 @@ architecture arch_processor_core of processor_core is
 	end component;
 -- Add signals here
 
+------------------------ TESTING SIGNALS ---------------------------
+	signal debug1: std_logic_vector(31 downto 0);
+	signal debug2: std_logic_vector(31 downto 0);
+	signal test3: std_logic_vector(31 downto 0);
+	signal test4: std_logic_vector(31 downto 0);
+
 	--Signal: State Control
 	signal STATE: STD_LOGIC := '0';
 	signal Startrunning: STD_LOGIC :='0';
@@ -271,7 +277,9 @@ begin
 
 	ID_EX_State_D <= IF_ID_State_Q;
 
-	ID_EX_Addr_D <= std_logic_vector(unsigned(IF_ID_PC_D) + unsigned(resize(shift_left(unsigned(ID_EX_SignExt_D), 2), 32)));
+	ID_EX_Addr_D <= std_logic_vector(unsigned(IF_ID_PC_Q) + unsigned(resize(shift_left(unsigned(ID_EX_SignExt_D), 2), 32)));
+	debug1 <= std_logic_vector(unsigned(IF_ID_PC_Q));
+	debug2 <= std_logic_vector(resize(shift_left(unsigned(ID_EX_SignExt_D), 2), 32));
 --ID/EX
 	process (PCclk)
 	begin
@@ -351,7 +359,7 @@ begin
 
 	PCfirstMuxOut <= PCpre when Hazard_PCMux_Control = '1' else -- stall
 					PcNext when PCSrc="00" and Hazard_PCMux_Control = '0' else -- normal
-	            	ID_EX_Addr_Q when PCSrc = "01" and Hazard_PCMux_Control = '0' else -- branch
+	            	ID_EX_Addr_D when PCSrc = "01" and Hazard_PCMux_Control = '0' else -- branch
 			        (PC(31 downto 28) & IF_ID_Inst_Q(25 downto 0 ) & "00")  when PCSrc = "10" else -- jump
 	            	PCAdd_Sft_Out;
 	instaddr <= PC;
